@@ -1,0 +1,22 @@
+{
+  "name": "inject-webpack",
+  "version": "0.1.1",
+  "description": "Inject the first executed code, support webpack5 and module-federation",
+  "main": "src/index.js",
+  "devDependencies": {},
+  "dependencies": {
+    "webpack-virtual-modules": "^0.4.6"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/inject-webpack"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/issues"
+  }
+}

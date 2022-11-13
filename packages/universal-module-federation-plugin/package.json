@@ -1,0 +1,32 @@
+{
+  "name": "universal-module-federation-plugin",
+  "version": "0.1.10",
+  "description": "Module federation supports the integration of various specifications, such as umd",
+  "main": "src/index.js",
+  "keywords": [
+    "module-federation",
+    "webpack",
+    "system",
+    "umd"
+  ],
+  "devDependencies": {},
+  "dependencies": {
+    "semverhook": "^1.0.7",
+    "inject-webpack": "^0.1.0",
+    "webpack-virtual-modules": "^0.4.6",
+    "umfjs": "^0.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhangHongEn/universal-module-federation-plugin.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/issues"
+  },
+  "homepage": "https://github.com/zhangHongEn/universal-module-federation-plugin#readme"
+}

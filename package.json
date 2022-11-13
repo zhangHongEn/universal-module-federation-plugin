@@ -1,0 +1,26 @@
+{
+  "name": "universal-module-federation-plugin-dir",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhangHongEn/universal-module-federation-plugin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/issues"
+  },
+  "homepage": "https://github.com/zhangHongEn/universal-module-federation-plugin#readme",
+  "workspaces": [
+    "packages/umfjs",
+    "packages/semverhook",
+    "packages/inject-webpack",
+    "packages/universal-module-federation-plugin"
+  ]
+}
