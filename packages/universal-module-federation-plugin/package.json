@@ -21,12 +21,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zhangHongEn/universal-module-federation-plugin.git"
+    "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/universal-module-federation-plugin"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/issues"
-  },
-  "homepage": "https://github.com/zhangHongEn/universal-module-federation-plugin#readme"
+  }
 }
