@@ -30,7 +30,10 @@ module.exports = {
           shared: { react: { singleton: true }, 'react-dom': { singleton: true } },
         }),
         new UmdPlugin({
-          includeRemotes: [/app4/, /app5/],
+          // The matched remotes are loaded in umd mode
+          includeRemotes: ["app4reactRouter", /app5remixRouter/],
+          // $umdValue: Module object exposed by umd
+          // $moduleName: "./App" <=== import "umdRemote/App"
           runtimeUmdExposes({ $umdValue, $moduleName }) {
             $moduleName = $moduleName.replace(/^\.\/?/, "")
             if ($moduleName) {
@@ -39,13 +42,16 @@ module.exports = {
             return $umdValue
           },
           dependencies: {
+            // Automatically match dependencies with the same name in remotes and shared
             automatic: ["shareScopes", "remotes"],
             referenceShares: {
+              // "react" This dependency is fetched from shareScopes
               react: {
                 singleton: true
               },
             },
             referenceRemotes: {
+              // "@remix-run/router" This dependency is obtained from remotes
               "@remix-run/router": "app5remixRouter"
             }
           }
