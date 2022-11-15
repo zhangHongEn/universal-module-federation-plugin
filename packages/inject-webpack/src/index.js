@@ -8,6 +8,7 @@ const ImportDependency = require("webpack/lib/dependencies/ImportDependency")
 const { RawSource } = require('webpack-sources');
 const Template = require("webpack/lib/Template")
 const ContainerEntryModule = require("webpack/lib/container/ContainerEntryModule")
+const path = require("path")
 const PLUGIN_NAME = 'InjectPlugin';
 
 let loaderId = 0
@@ -26,7 +27,7 @@ class InjectPlugin {
     // }
     this.injectCodeFn = code
     this.loaderId = ++loaderId
-    this.virtualSemverPath = `${process.cwd()}/$_injectPlugin_${this.loaderId}.js`
+    this.virtualSemverPath = path.join(process.cwd(), `$_injectPlugin_${this.loaderId}.js`)
   }
   apply(compiler) {
     new VirtualPlugin({
