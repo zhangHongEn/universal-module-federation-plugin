@@ -10,9 +10,7 @@
   if (
     match(moduleData) &&
     // Exclude files referenced as assets
-    !moduleData.type.includes('asset') &&
-    // Check to prevent double injection
-    !moduleData.loaders.find(({ loader }) => loader === resolvedLoader)
+    !moduleData.type.includes('asset')
   ) {
     // As we inject runtime code for each module,
     // it is important to run the injected loader after everything.

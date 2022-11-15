@@ -1,5 +1,5 @@
 
-const { entryResources, injectArray } = require('./entry-inject-loader');
+const { injectMap } = require('./entry-inject-loader');
 const getEntrysPath = require('./utils/getEntrysPath');
 const injectLoader = require('./utils/injectLoader');
 const entryInjectLoaderPath = require.resolve("./entry-inject-loader")
@@ -11,7 +11,7 @@ const ContainerEntryModule = require("webpack/lib/container/ContainerEntryModule
 const path = require("path")
 const PLUGIN_NAME = 'InjectPlugin';
 
-let loaderId = 0
+let injectId = 0
 
 class InjectPlugin {
   constructor(code, options = {}) {
@@ -23,11 +23,11 @@ class InjectPlugin {
     //   // entry 注入到所有入口
     //   // remoteEntry 注入module-federation的 remoteEntry
     //   // exposesEntry 注入module-federation的exposes暴露的每个入口
-    //   // scope: ["entry", "remoteEntry", "exposesEntry"]
+    //   // scopes: ["entry", "remoteEntry", "exposesEntry"]
     // }
     this.injectCodeFn = code
-    this.loaderId = ++loaderId
-    this.virtualSemverPath = path.join(process.cwd(), `$_injectPlugin_${this.loaderId}.js`)
+    this.injectId = ++injectId
+    this.virtualSemverPath = path.join(process.cwd(), `$_injectPlugin_${this.injectId}.js`)
   }
   apply(compiler) {
     new VirtualPlugin({
@@ -35,15 +35,14 @@ class InjectPlugin {
     }).apply(compiler)
 
     this.addLoader(compiler)
+    injectMap[this.injectId + "__entryResources"] = new Set()
 
     const scopes = this.options.scopes
     const hasEntry = scopes.indexOf("entry") > -1
     const hasExposes = scopes.indexOf("exposesEntry") > -1
     const hasRemoteEntry = scopes.indexOf("remoteEntry") > -1
     if (hasEntry || hasExposes) {
-      injectArray.push(() => {
-        return `;require(${JSON.stringify(this.virtualSemverPath)});`
-      })
+      injectMap[this.injectId + "__code"] = `;require(${JSON.stringify(this.virtualSemverPath)});`
 
       compiler.hooks.thisCompilation.tap(PLUGIN_NAME, (compilation) => {
         compilation.hooks.addEntry.tap(PLUGIN_NAME, (entry) => {
@@ -54,7 +53,7 @@ class InjectPlugin {
             hasEntry,
             hasExposes
           }).forEach(path => {
-            entryResources.add(path)
+            injectMap[this.injectId + "__entryResources"].add(path)
           })
         })
       })
@@ -88,6 +87,7 @@ class InjectPlugin {
               options: {
                 const: compilation.runtimeTemplate.supportsConst(),
                 esModule: false,
+                injectId: this.injectId
               },
             }, entryInjectLoaderPath);
           }
@@ -112,7 +112,7 @@ class InjectPlugin {
               'javascript',
               new RawSource(
                 Template.asString([
-                  `__webpack_require__("./$_injectPlugin_${this.loaderId}.js")`,
+                  `__webpack_require__("./$_injectPlugin_${this.injectId}.js")`,
                   rawSource.source()
                 ])
               )
