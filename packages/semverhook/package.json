@@ -1,6 +1,6 @@
 {
     "name": "semverhook",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "author": "",
     "description": "1.6kb minimalist hook sdk",
     "keywords": [
@@ -10,7 +10,7 @@
         "module federation",
         "webpack"
     ],
-    "homepage": "https://github.com/wpmjs/wpmjs/tree/main/packages/semverhook",
+    "homepage": "https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/semverhook",
     "files": [
         "doc",
         "dist",

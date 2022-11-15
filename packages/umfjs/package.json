@@ -1,6 +1,6 @@
 {
   "name": "umfjs",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "universal module federation",
   "main": "dist/index.js",
   "devDependencies": {
@@ -23,14 +23,10 @@
     "build": "cross-env NODE_ENV=production webpack --mode production",
     "start": "cross-env NODE_ENV=development webpack serve --mode development"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wpmjs/wpmjs.git"
-  },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/wpmjs/wpmjs/issues"
+    "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/issues"
   },
-  "homepage": "https://github.com/wpmjs/wpmjs#readme"
+  "homepage": "https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/umfjs"
 }
