@@ -39,6 +39,7 @@ module.exports = {
             return $umdValue
           },
           dependencies: {
+            automatic: ["shareScopes", "remotes"],
             referenceShares: {
               react: {
                 singleton: true

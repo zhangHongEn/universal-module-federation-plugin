@@ -125,10 +125,16 @@ class UniversalModuleFederationPlugin {
   }
 
   matchRemotes(name = "") {
-    if (this.options.excludeRemotes.some(pattern => pattern.test(name))) {
+    function match(patternOrStr, val) {
+      if (typeof patternOrStr === "string") {
+        return patternOrStr === val
+      }
+      return pattern.test(val)
+    }
+    if (this.options.excludeRemotes.some(pattern => match(pattern, name))) {
       return false
     }
-    return this.options.includeRemotes.some(pattern => pattern.test(name))
+    return this.options.includeRemotes.some(pattern => match(pattern, name))
   }
 }
 
