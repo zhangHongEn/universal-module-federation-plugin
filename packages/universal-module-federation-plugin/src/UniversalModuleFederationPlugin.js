@@ -18,9 +18,11 @@ class UniversalModuleFederationPlugin {
     this.options = options
     this.appName = ""
     this.hookIndex = ++hookIndex
+    this.mfOptions = null
   }
   apply(compiler) {
-    this.appName = this.getAppName(compiler.options.plugins)
+    this.mfOptions = this.getMfOptions(compiler.options.plugins)
+    this.appName = this.mfOptions.name
     let injectCode = `
     ${this.hackWebpack4()}
     let __umf__ = {
@@ -29,9 +31,9 @@ class UniversalModuleFederationPlugin {
       $getShare: null,
       $injectVars: null
     }
-    if (!window.semverhook_${this.appName}_${this.hookIndex}) {
+    if (!window.__umfplugin__semverhook_${this.appName}_${this.hookIndex}) {
       ;(function () {
-        window.semverhook_${this.appName}_${this.hookIndex} = require("semverhook")()
+        window.__umfplugin__semverhook_${this.appName}_${this.hookIndex} = require("semverhook")()
         const {findShare} = require("umfjs")
 
         async function $getShare(pkg, config) {
@@ -47,7 +49,7 @@ class UniversalModuleFederationPlugin {
           return (await window[containerName].get(moduleName))()
         }
         __umf__ = {
-          $semverhook: window.semverhook_${this.appName}_${this.hookIndex},
+          $semverhook: window.__umfplugin__semverhook_${this.appName}_${this.hookIndex},
           $getRemote,
           $getShare,
           $injectVars: ${stringifyHasFn(this.options.runtimeInjectVars)}
@@ -59,6 +61,17 @@ class UniversalModuleFederationPlugin {
     `
     new Inject(() => {
       return injectCode
+    }).apply(compiler)
+    new Inject(() => {
+      return `
+      ${Object.keys(this.mfOptions.remotes)
+        .filter(remoteName => this.matchRemotes(remoteName))
+        .map(remoteName => `require("${remoteName}")`)
+        .join(";")
+      }
+      `
+    }, {
+      scopes: ["exposesEntry"]
     }).apply(compiler)
 
     compiler.hooks.make.tap(PLUGIN_NAME, compilation => {
@@ -86,7 +99,7 @@ class UniversalModuleFederationPlugin {
                     'javascript',
                     new RawSource(
                       `
-                      module.exports = Promise.resolve(semverhook_${this.appName}_${this.hookIndex}.import("${url}"))
+                      module.exports = Promise.resolve(__umfplugin__semverhook_${this.appName}_${this.hookIndex}.import("${url}"))
                         .then(function(container) {
                           window["${name}"] = container
                           return container
@@ -99,14 +112,14 @@ class UniversalModuleFederationPlugin {
     });
   }
 
-  getAppName(plugins) {
+  getMfOptions(plugins) {
     const federationOptions = plugins.filter(
       (plugin) => {
         return plugin instanceof ModuleFederationPlugin;
       }
     )[0]
     const inheritedPluginOptions = federationOptions._options
-    return inheritedPluginOptions.name
+    return inheritedPluginOptions
   }
 
   /**
@@ -129,7 +142,7 @@ class UniversalModuleFederationPlugin {
       if (typeof patternOrStr === "string") {
         return patternOrStr === val
       }
-      return pattern.test(val)
+      return patternOrStr.test(val)
     }
     if (this.options.excludeRemotes.some(pattern => match(pattern, name))) {
       return false
