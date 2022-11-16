@@ -56,13 +56,15 @@ module.exports = function () {
     if (cacheMap[id]) return cacheMap[id].resultModule
     cacheMap[id] = {}
     id = id || ""
-    const {url, request} = resolve(id)
-    var resultModule = emit("import", [url, request])
-    cacheMap[id].resultModule = resultModule
-    Promise.resolve(resultModule).then(function (val) {
-      cacheMap[id].resultModuleSync = val
+    return Promise.resolve(emit("beforeImport", [id]) || id).then(function (id) {
+      const {url, request} = resolve(id)
+      var resultModule = emit("import", [url, request])
+      cacheMap[id].resultModule = resultModule
+      Promise.resolve(resultModule).then(function (val) {
+        cacheMap[id].resultModuleSync = val
+      })
+      return resultModule
     })
-    return resultModule
   }
 
   semverhook.import = importFn
@@ -71,10 +73,10 @@ module.exports = function () {
     return resolve(id).url
   }
 
-  semverhook.get = function() {
+  semverhook.get = function(id) {
     return cacheMap[id] ? cacheMap[id].resultModule : null
   }
-  semverhook.getSync = function() {
+  semverhook.getSync = function(id) {
     return cacheMap[id] ? cacheMap[id].resultModuleSync : null
   }
 
