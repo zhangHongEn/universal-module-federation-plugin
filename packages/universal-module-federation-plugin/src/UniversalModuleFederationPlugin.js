@@ -24,7 +24,6 @@ class UniversalModuleFederationPlugin {
     this.mfOptions = this.getMfOptions(compiler.options.plugins)
     this.appName = this.mfOptions.name
     let injectCode = `
-    ${this.hackWebpack4()}
     let __umf__ = {
       $semverhook: null,
       $getRemote: null,
@@ -120,21 +119,6 @@ class UniversalModuleFederationPlugin {
     )[0]
     const inheritedPluginOptions = federationOptions._options
     return inheritedPluginOptions
-  }
-
-  /**
-   * 此处逻辑只是修复systemjs与webpack-4插件wpmjs的冲突
-   */
-  hackWebpack4() {
-    return `
-
-    if (window.wpmjs && window.wpmjs.resolvePath && window.wpmjs.resolvePath.__wpm__defaultProp) {
-      window.System.__wpmjs__.resolvePath = window.wpmjs.resolvePath = function ({name, version, entry, query}) {
-        return ""
-      }
-      window.wpmjs.resolvePath.__wpm__defaultProp = true
-    }
-    `
   }
 
   matchRemotes(name = "") {
