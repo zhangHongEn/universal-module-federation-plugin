@@ -43,7 +43,7 @@ module.exports = {
           },
           dependencies: {
             // Automatically match dependencies with the same name in remotes and shared
-            // !!! This option is under development
+            // !!! "automatic" is under development
             automatic: ["shareScopes", "remotes"],
             referenceShares: {
               // "react" This dependency is fetched from shareScopes
