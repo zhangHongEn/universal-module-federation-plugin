@@ -46,14 +46,14 @@ module.exports = {
 
 ## umd api
 
-| options                       | desc                                                                      | default                           | examles                                           |
-|-------------------------------|---------------------------------------------------------------------------|-----------------------------------|:--------------------------------------------------|
-| includeRemotes                | match umd remotes                                                         | []                                | [/umd-app/, "app3"]                               |
-| excludeRemotes                | exclude umd remotes                                                       | []                                | ["app2"]                                          |
-| dependencies.automatic        | Automatically match dependencies with the same name in remotes and shared | ["shareScopes", "remotes"]        |                                                   |
-| dependencies.referenceShares  | umd dependencies use by shares                                            | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
-| dependencies.referenceRemotes | umd dependencies use by remotes                                           | {}                                | {react: "app5"}                                   |
-| runtimeUmdExposes             |                                                                           | ({$umdValue}) => return $umdValue |                                                   |
+| options                       | desc                                                                                      | default                           | examles                                           |
+|-------------------------------|-------------------------------------------------------------------------------------------|-----------------------------------|:--------------------------------------------------|
+| includeRemotes                | match umd remotes                                                                         | []                                | [/umd-app/, "app3"]                               |
+| excludeRemotes                | exclude umd remotes                                                                       | []                                | ["app2"]                                          |
+| dependencies.automatic        | Automatically match dependencies with the same name in remotes and shared                 | ["shareScopes", "remotes"]        |                                                   |
+| dependencies.referenceShares  | umd dependencies use by shares                                                            | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
+| dependencies.referenceRemotes | umd dependencies use by remotes                                                           | {}                                | {react: "app5"}                                   |
+| runtimeUmdExposes             | If the umd package has multiple entries, you can use this function to resolve the entries | ({$umdValue}) => return $umdValue |                                                   |
 
 #### runtimeUmdExposes
 ``` js
