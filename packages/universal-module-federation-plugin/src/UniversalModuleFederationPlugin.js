@@ -19,15 +19,18 @@ class UniversalModuleFederationPlugin {
     this.appName = ""
     this.hookIndex = ++hookIndex
     this.mfOptions = null
+    this.containerRemoteKeyMap = null
   }
   apply(compiler) {
     this.mfOptions = this.getMfOptions(compiler.options.plugins)
+    this.containerRemoteKeyMap = this.getContainerRemoteKeyMap(this.mfOptions.remotes)
     this.appName = this.mfOptions.name
     let injectCode = `
     let __umf__ = {
       $semverhook: null,
       $getRemote: null,
       $getShare: null,
+      $containerRemoteKeyMap: null,
       $injectVars: null
     }
     if (!window.__umfplugin__semverhook_${this.appName}_${this.hookIndex}) {
@@ -35,13 +38,19 @@ class UniversalModuleFederationPlugin {
         window.__umfplugin__semverhook_${this.appName}_${this.hookIndex} = require("semverhook")()
         const {findShare} = require("umfjs")
 
-        async function $getShare(pkg, config) {
-          return (await findShare(pkg, config, __webpack_share_scopes__)[1].get())()
+        function $getShare(pkg, config) {
+          var share = findShare(pkg, config, __webpack_share_scopes__)
+          if (share) {
+            return share[1].get().then(res => res())
+          }
+          return null
         }
         async function $getRemote(request = "") {
-          const requestArray = request.split("/")
-          const containerName = requestArray[0]
-          const moduleName = "./" + requestArray.slice(1).join("/")
+          const containerName = Object.keys(__umf__.$containerRemoteKeyMap).filter(function(containerName) {
+            const remoteKey = __umf__.$containerRemoteKeyMap[containerName]
+            return request.indexOf(remoteKey) === 0
+          })[0]
+          const moduleName = request.replace(__umf__.$containerRemoteKeyMap[containerName], "./")
           if (!window[containerName]) {
             throw new Error("container " + containerName + " not found")
           }
@@ -51,6 +60,7 @@ class UniversalModuleFederationPlugin {
           $semverhook: window.__umfplugin__semverhook_${this.appName}_${this.hookIndex},
           $getRemote,
           $getShare,
+          $containerRemoteKeyMap: ${JSON.stringify(this.containerRemoteKeyMap)},
           $injectVars: ${stringifyHasFn(this.options.runtimeInjectVars)}
         }
       })();
@@ -88,8 +98,7 @@ class UniversalModuleFederationPlugin {
                 const request = (module.request || "")
                 const url = request.split("@").slice(1).join("@")
                 const name = request.split("@")[0]
-
-                if (!this.matchRemotes(name)) {
+                if (!this.matchRemotes(this.containerRemoteKeyMap[name])) {
                   return
                 }
                 const sourceMap = compilation.codeGenerationResults.get(module).sources;
@@ -119,6 +128,19 @@ class UniversalModuleFederationPlugin {
     )[0]
     const inheritedPluginOptions = federationOptions._options
     return inheritedPluginOptions
+  }
+
+  getContainerRemoteKeyMap(remotes = {}) {
+    const map = {}
+    Object.keys(remotes).forEach(key => {
+      const remoteStr = typeof remotes[key] === "string" ? remotes[key] : remotes[key].external
+      if (remoteStr.indexOf("@") === -1) {
+        return
+      }
+      const containerName = remoteStr.split("@")[0]
+      map[containerName] = key
+    })
+    return map
   }
 
   matchRemotes(name = "") {

@@ -1,12 +1,12 @@
 # universal-module-federation-plugin
 
+[![npm](https://img.shields.io/npm/v/universal-module-federation-plugin.svg)](https://www.npmjs.com/package/universal-module-federation-plugin)
+
 Keep the original API of module-federation, support the integration of various module specifications
 
 Allows you to control all the processes of each dependency by yourself
 
-Can do almost anything you want
-
-## umd
+## umd examles
 
 Allow module-federation to use umd module, umd dependencies can be obtained from shareScopes or remotes
 
@@ -21,8 +21,8 @@ module.exports = {
           filename: 'remoteEntry.js',
           remotes: {
             app2: "app2@http://localhost:9002/remoteEntry.js",
-            app4reactRouter: "app4reactRouter@https://unpkg.com/react-router@6.4.3/dist/umd/react-router.production.min.js",
-            app5remixRouter: "app5remixRouter@https://unpkg.com/@remix-run/router@1.0.3/dist/router.umd.min.js"
+            "react-router": "app4reactRouter@https://unpkg.com/react-router@6.4.3/dist/umd/react-router.production.min.js",
+            "@remix-run/router": "app5remixRouter@https://unpkg.com/@remix-run/router@1.0.3/dist/router.umd.min.js"
           },
           exposes: {
             './App': './src/App',
@@ -31,30 +31,9 @@ module.exports = {
         }),
         new UmdPlugin({
           // The matched remotes are loaded in umd mode
-          includeRemotes: ["app4reactRouter", /app5remixRouter/],
-          // $umdValue: Module object exposed by umd
-          // $moduleName: "./App" <=== import "umdRemote/App"
-          runtimeUmdExposes({ $umdValue, $moduleName }) {
-            $moduleName = $moduleName.replace(/^\.\/?/, "")
-            if ($moduleName) {
-              return $umdValue[$moduleName]
-            }
-            return $umdValue
-          },
+          includeRemotes: [/react-router/, "@remix-run/router"],
           dependencies: {
-            // Automatically match dependencies with the same name in remotes and shared
-            // !!! "automatic" is under development
             automatic: ["shareScopes", "remotes"],
-            referenceShares: {
-              // "react" This dependency is fetched from shareScopes
-              react: {
-                singleton: true
-              },
-            },
-            referenceRemotes: {
-              // "@remix-run/router" This dependency is obtained from remotes
-              "@remix-run/router": "app5remixRouter"
-            }
           }
         }),
         new UmdPlugin({
@@ -65,60 +44,76 @@ module.exports = {
 }
 ```
 
+## umd api
+
+| options                       | desc                                                                      | default                           | examles                                           |
+|-------------------------------|---------------------------------------------------------------------------|-----------------------------------|:--------------------------------------------------|
+| includeRemotes                | match umd remotes                                                         | []                                | [/umd-app/, "app3"]                               |
+| excludeRemotes                | exclude umd remotes                                                       | []                                | ["app2"]                                          |
+| dependencies.automatic        | Automatically match dependencies with the same name in remotes and shared | ["shareScopes", "remotes"]        |                                                   |
+| dependencies.referenceShares  | umd dependencies use by shares                                            | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
+| dependencies.referenceRemotes | umd dependencies use by remotes                                           | {}                                | {react: "app5"}                                   |
+| runtimeUmdExposes             |                                                                           | ({$umdValue}) => return $umdValue |                                                   |
+
+#### runtimeUmdExposes
+``` js
+// $umdValue: Module object exposed by umd
+// $moduleName: "./App" <=== import "umdRemote/App"
+runtimeUmdExposes({ $umdValue, $moduleName }) {
+    $moduleName = $moduleName.replace(/^\.\/?/, "")
+    if ($moduleName) {
+      return $umdValue[$moduleName]
+    }
+    return $umdValue
+}
+```
+
 ## custom module specification
 
 If you have modified systemjs, or you have your own module specification, you can use UniversalModuleFederationPlugin to integrate it. The following is the source code of UmdPlugin, and the explanation of each API will be updated after the documentation.
 
-```
+``` js
 // webpack.config.js
-const {UniversalModuleFederationPlugin} = require("universal-
-module.exports = {
-    plugins: [
-        new UniversalModuleFederationPlugin({
-          includeRemotes: this.options.includeRemotes,
-          excludeRemotes: this.options.excludeRemotes,
-          runtimeInjectVars: {
-            referenceShares: this.options.dependencies.referenceShares,
-            referenceRemotes: this.options.dependencies.referenceRemotes,
-            umdExposes: this.options.runtimeUmdExposes
-          },
-          runtimeInject: ({$semverhook, $getShare, $getRemote, $injectVars}) => {
-            const {
-              referenceRemotes,
-              referenceShares,
-              umdExposes
-            } = $injectVars
-            const {interceptSystemDep} = require("umfjs")
-            const interceptDeps = Object.keys(referenceShares)
-              .concat(Object.keys(referenceRemotes))
-    
-            $semverhook.on("resolve", (url) => {})
-            $semverhook.on("import", (url) => {
-              return {
-                init(){},
-                async get(moduleName = "") {
-                  const res = await window.System.import(url)
-                  return function() {
-                    return umdExposes({
-                      $umdValue: res,
-                      $moduleName: moduleName
-                    })
-                  }
-                }
+
+const PLUGIN_NAME = 'UmdPlugin';
+const UniversalModuleFederationPlugin = require("./UniversalModuleFederationPlugin")
+
+class UmdPlugin {
+
+  apply(compiler) {
+    new UniversalModuleFederationPlugin({
+      runtimeInject: ({$semverhook, $getShare, $getRemote, $containerRemoteKeyMap, $injectVars}) => {
+        const {interceptSystemAllDep} = require("umfjs")
+        const {System, eventBus} = interceptSystemAllDep()
+        
+        $semverhook.on("import", (url) => {
+          return {
+            init(){},
+            async get(moduleName = "") {
+              const res = await System.import(url)
+              return function() {
+                return umdExposes({
+                  $umdValue: res,
+                  $moduleName: moduleName
+                })
               }
-            })
-    
-            interceptSystemDep(interceptDeps, async (dep) => {
-              let depValue = null
-              if (referenceShares[dep]) {
-                depValue = await $getShare(referenceShares[dep].import || dep, referenceShares[dep])
-              } else if (referenceRemotes[dep]) {
-                depValue = await $getRemote(referenceRemotes[dep])
-              }
-              return depValue
-            })
+            }
           }
-        }).apply(compiler)
-    ]
+        })
+
+        eventBus.on("importDep", (dep) => {
+          if (referenceRemotes[dep]) {
+            return $getRemote(referenceRemotes[dep] || dep)
+          }
+        })
+        eventBus.on("importDep", (dep) => {
+          if (referenceShares[dep]) {
+            return $getShare(referenceShares[dep].import || dep, referenceShares[dep])
+          }
+        })
+      }
+    }).apply(compiler)
+  }
+
 }
 ```

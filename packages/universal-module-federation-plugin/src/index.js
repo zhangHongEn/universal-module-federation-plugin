@@ -15,7 +15,8 @@ class UmdPlugin {
         // },
         // referenceRemotes: {
         //   "Button": "app5/Button"
-        // }
+        // },
+        // automatic: ["remotes", "shareScopes"]
       },
       runtimeUmdExposes({$umdValue, $moduleName}) {
         return $umdValue
@@ -28,6 +29,9 @@ class UmdPlugin {
     if (!options.dependencies.referenceRemotes) {
       options.dependencies.referenceRemotes = {}
     }
+    if (!options.dependencies.automatic) {
+      options.dependencies.automatic = ["remotes", "shareScopes"]
+    }
   }
 
   apply(compiler) {
@@ -37,24 +41,26 @@ class UmdPlugin {
       runtimeInjectVars: {
         referenceShares: this.options.dependencies.referenceShares,
         referenceRemotes: this.options.dependencies.referenceRemotes,
-        umdExposes: this.options.runtimeUmdExposes
+        umdExposes: this.options.runtimeUmdExposes,
+        automatic: this.options.dependencies.automatic,
       },
-      runtimeInject: ({$semverhook, $getShare, $getRemote, $injectVars}) => {
+      runtimeInject: ({$semverhook, $getShare, $getRemote, $containerRemoteKeyMap, $injectVars}) => {
         const {
           referenceRemotes,
           referenceShares,
-          umdExposes
+          umdExposes,
+          automatic
         } = $injectVars
-        const {interceptSystemDep} = require("umfjs")
-        const interceptDeps = Object.keys(referenceShares)
-          .concat(Object.keys(referenceRemotes))
+        const {interceptSystemAllDep} = require("umfjs")
+        const {System, eventBus} = interceptSystemAllDep()
+        const isInterceptDepFromAllRemotes = automatic.indexOf("remotes") > -1
+        const isInterceptDepFromAllShares = automatic.indexOf("shareScopes") > -1
 
-        $semverhook.on("resolve", (url) => {})
         $semverhook.on("import", (url) => {
           return {
             init(){},
             async get(moduleName = "") {
-              const res = await window.System.import(url)
+              const res = await System.import(url)
               return function() {
                 return umdExposes({
                   $umdValue: res,
@@ -65,14 +71,26 @@ class UmdPlugin {
           }
         })
 
-        interceptSystemDep(interceptDeps, async (dep) => {
-          let depValue = null
-          if (referenceShares[dep]) {
-            depValue = await $getShare(referenceShares[dep].import || dep, referenceShares[dep])
-          } else if (referenceRemotes[dep]) {
-            depValue = await $getRemote(referenceRemotes[dep])
+        eventBus.on("importDep", (dep) => {
+          if (referenceRemotes[dep]) {
+            return $getRemote(referenceRemotes[dep] || dep)
           }
-          return depValue
+          if (isInterceptDepFromAllRemotes) {
+            const containerName = Object.keys($containerRemoteKeyMap).filter(function (containerName) {
+              const remoteKey = $containerRemoteKeyMap[containerName]
+              return remoteKey === dep
+            })[0]
+            return containerName && $getRemote(dep)
+          }
+        })
+        eventBus.on("importDep", (dep) => {
+          if (/^https?:/.test(dep)) return
+          if (referenceShares[dep]) {
+            return $getShare(referenceShares[dep].import || dep, referenceShares[dep])
+          }
+          if (isInterceptDepFromAllShares) {
+            return $getShare(dep, {singleton: true})
+          }
         })
       }
     }).apply(compiler)
