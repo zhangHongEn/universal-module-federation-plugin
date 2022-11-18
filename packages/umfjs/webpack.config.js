@@ -16,7 +16,7 @@ module.exports = {
     filename: "./index.js",
     chunkFilename: "[name]-[chunkhash].js",
     library: {
-      name: "semverjs",
+      name: "umfjs",
       type: "umd"
     }
   },

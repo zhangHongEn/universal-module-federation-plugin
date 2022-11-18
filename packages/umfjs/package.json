@@ -1,6 +1,6 @@
 {
   "name": "umfjs",
-  "version": "0.1.8",
+  "version": "0.3.0",
   "description": "universal module federation",
   "main": "dist/index.js",
   "devDependencies": {

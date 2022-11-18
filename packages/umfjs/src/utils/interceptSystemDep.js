@@ -1,21 +1,10 @@
-module.exports = function (interceptDeps = [], cb) {
+module.exports = function (interceptDeps, cb) {
   if (!window.System) {
     require("systemjs/dist/s")
     require("systemjs/dist/extras/amd")
   }
 
-  const eventBus = System.__umfjs__interceptSystemDep || require("semverhook")()
-  eventBus.on("resolveDep", function(dep) {
-    return depInterceptUrlMap[dep]
-  })
-  eventBus.on("interceptDep", function(url) {
-    return interceptUrlDepMap[url]
-  })
-  eventBus.on("importDep", function(dep) {
-    if (interceptDeps.indexOf(dep) > -1) {
-      return cb(dep)
-    }
-  })
+  const isInterceptAll = interceptDeps == null
 
   const depInterceptUrlMap = {
     // react: `https://module-federation.virtual.com/$intercept/react`,
@@ -23,9 +12,31 @@ module.exports = function (interceptDeps = [], cb) {
   const interceptUrlDepMap = {
     // "https://module-federation.virtual.com/$intercept/react": "react",
   }
-  interceptDeps.forEach(dep => {
-    depInterceptUrlMap[dep] = `https://module-federation.virtual.com/$intercept/${dep}`
-    interceptUrlDepMap[`https://module-federation.virtual.com/$intercept/${dep}`] = dep
+  if (interceptDeps) {
+    interceptDeps.forEach(dep => {
+      depInterceptUrlMap[dep] = `https://module-federation.virtual.com/$intercept/${dep}`
+      interceptUrlDepMap[`https://module-federation.virtual.com/$intercept/${dep}`] = dep
+    })
+  }
+
+  const eventBus = System.__umfjs__interceptSystemDep || require("semverhook")()
+  eventBus.on("resolveDep", function(dep) {
+    if (isInterceptAll) {
+      return `https://module-federation.virtual.com/$intercept/${dep}`
+    }
+    return depInterceptUrlMap[dep]
+  })
+  eventBus.on("interceptDep", function(url) {
+    if (isInterceptAll) {
+      console.log(12339, url)
+      return url.replace("https://module-federation.virtual.com/$intercept/", "")
+    }
+    return interceptUrlDepMap[url]
+  })
+  eventBus.on("importDep", function(dep) {
+    if (isInterceptAll || interceptDeps.indexOf(dep) > -1) {
+      return cb(dep)
+    }
   })
 
   if (System.__umfjs__interceptSystemDep) {

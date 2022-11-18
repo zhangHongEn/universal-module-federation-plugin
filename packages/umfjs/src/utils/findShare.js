@@ -4,6 +4,9 @@ module.exports.findShare = function getShare(pkg, shareConfig = {}, shareScopes)
   // TODO: shareConfig fill default
   if (!shareScopes) throw new Error("shareScopes is required")
   const {strictVersion, singleton, shareScope = "default", requiredVersion = "*"} = shareConfig
+  if (!shareScopes[shareScope] || !shareScopes[shareScope][pkg]) {
+    return null
+  }
   const pkgVersions = shareScopes[shareScope][pkg]
   const loadedShareVersions = Object.keys(pkgVersions).filter(version => !!pkgVersions[version].loaded)
   const rangeMax = rangesMaxSatisfying(Object.keys(pkgVersions), requiredVersion)
