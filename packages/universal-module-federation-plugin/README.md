@@ -76,7 +76,7 @@ If you have modified systemjs, or you have your own module specification, you ca
 // webpack.config.js
 
 const PLUGIN_NAME = 'UmdPlugin';
-const UniversalModuleFederationPlugin = require("./UniversalModuleFederationPlugin")
+const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
 
 class UmdPlugin {
 
