@@ -144,7 +144,7 @@ Any runtime hooks will inject the "\_\_umf\_\_" variable
 | $getRemote("request"):promise<module>                                | Get the remote module, same as import xxx from "xxxx/xxx"                                                           | $getRemote("app2/App")                    |
 | $getShare(pkg, {singleton, requiredVersion, ......}):promise<module> | Get modules from shareScopes, same as "shared" configuration                                                        | $getShare("react", {singleton: true})     |
 | $containerRemoteKeyMap: object                                       | The container name corresponds to the map of the key configured by remotes
-remotes: {"@app2/xx": "app3@http://xxx"} | $containerRemoteKeyMap.app3 // "@app2/xx" |
+remotes: {"@app2/xx": "app3@http://xxx"} | $containerRemoteKeyMap.app3 --> "@app2/xx" |
 | $injectVars: object                                                  | Variables injected by plugins                                                                                       |                                           |
 | $context: object                                                     | $context is an empty object by default, used to pass values between multiple hooks                                              | $context.xxx = xxx                        |
 
