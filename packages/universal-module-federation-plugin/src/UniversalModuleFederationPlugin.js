@@ -5,6 +5,7 @@ const PLUGIN_NAME = 'UniversalModuleFederationPlugin';
 const {ExternalModule} = require("webpack")
 const {ModuleFederationPlugin} = require("webpack").container
 const stringifyHasFn = require("./utils/stringifyHasFn")
+
 let hookIndex = 0
 
 class UniversalModuleFederationPlugin {
@@ -12,9 +13,16 @@ class UniversalModuleFederationPlugin {
     options = Object.assign({
       includeRemotes: [],
       excludeRemotes: [],
-      runtimeInject: function ({$semverhook, $getShare, $getRemote, $injectVars}) {},
-      runtimeInjectVars: {}
+      runtimeInject: {}
     }, options)
+    options.runtimeInject = Object.assign({
+      injectVars: {},
+      initial(){},
+      beforeImport(){},
+      resolvePath() {},
+      resolveRequest() {},
+      import() {}
+    }, options.runtimeInject)
     this.options = options
     this.appName = ""
     this.hookIndex = ++hookIndex
@@ -31,7 +39,8 @@ class UniversalModuleFederationPlugin {
       $getRemote: null,
       $getShare: null,
       $containerRemoteKeyMap: null,
-      $injectVars: null
+      $injectVars: null,
+      $context: {}
     }
     if (!window.__umfplugin__semverhook_${this.appName}_${this.hookIndex}) {
       ;(function () {
@@ -56,16 +65,20 @@ class UniversalModuleFederationPlugin {
           }
           return (await window[containerName].get(moduleName))()
         }
-        __umf__ = {
+        Object.assign(__umf__, {
           $semverhook: window.__umfplugin__semverhook_${this.appName}_${this.hookIndex},
           $getRemote,
           $getShare,
           $containerRemoteKeyMap: ${JSON.stringify(this.containerRemoteKeyMap)},
-          $injectVars: ${stringifyHasFn(this.options.runtimeInjectVars)}
-        }
+        })
       })();
-      const injectFn = ${stringifyHasFn({ fn: this.options.runtimeInject })}.fn
-      injectFn(__umf__)
+      const __runtimeInject = ${stringifyHasFn(this.options.runtimeInject)}
+      __umf__.$injectVars = __runtimeInject.injectVars
+      __runtimeInject.initial()
+      __umf__.$semverhook.on("beforeImport", __runtimeInject.beforeImport)
+      __umf__.$semverhook.on("import", __runtimeInject.import)
+      __umf__.$semverhook.on("resolvePath", __runtimeInject.resolvePath)
+      __umf__.$semverhook.on("resolveRequest", __runtimeInject.resolveRequest)
     }
     `
     new Inject(() => {

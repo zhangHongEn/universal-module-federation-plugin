@@ -1,6 +1,6 @@
 {
   "name": "universal-module-federation-plugin",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Module federation supports the integration of various specifications, such as umd",
   "main": "src/index.js",
   "keywords": [
@@ -11,7 +11,7 @@
   ],
   "devDependencies": {},
   "dependencies": {
-    "semverhook": "^1.0.7",
+    "semverhook": "^1.1.0",
     "inject-webpack": "^0.1.5",
     "webpack-virtual-modules": "^0.4.6",
     "umfjs": "^0.3.0"

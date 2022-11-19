@@ -70,50 +70,81 @@ runtimeUmdExposes({ $umdValue, $moduleName }) {
 
 ## custom module specification
 
-If you have modified systemjs, or you have your own module specification, you can use UniversalModuleFederationPlugin to integrate it. The following is the source code of UmdPlugin, and the explanation of each API will be updated after the documentation.
+If you have your own module specification, you can use UniversalModuleFederationPlugin to integrate it. 
+UmdPlugin is implemented using this plugin, you can refer to the [UmdPlugin source code](./src/UmdPlugin.js)
+
 
 ``` js
 // webpack.config.js
-
-const PLUGIN_NAME = 'UmdPlugin';
 const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
 
-class UmdPlugin {
+class CustomPlugin {
 
   apply(compiler) {
     new UniversalModuleFederationPlugin({
-      runtimeInject: ({$semverhook, $getShare, $getRemote, $containerRemoteKeyMap, $injectVars}) => {
-        const {interceptSystemAllDep} = require("umfjs")
-        const {System, eventBus} = interceptSystemAllDep()
-        
-        $semverhook.on("import", (url) => {
+      includeRemotes: [/.*/],
+      excludeRemotes: [],
+      runtimeInject: {
+        // You can access "__umf__.$injectVars.testInjectVar" in any of the following runtime hooks
+        injectVars: {
+          testInjectVar: 111,
+        },
+        // any runtime hook can using "__umf__"
+        initial: () => {
+          const {$getShare, $getRemote, $containerRemoteKeyMap, $injectVars, $context} = __umf__
+          const testInjectVar = $injectVars
+          console.log("__umf__", __umf__, testInjectVar)
+          // $context is an empty object by default, used to pass values between multiple hooks
+          $context.testA = "testA"
+        },
+        beforeImport(url) {
+          console.log(__umf__.$context)
+          return new Promise(resolve => {
+            setTimeout(function () {
+              resolve(url)
+            }, 3000)
+          })
+        },
+        import(url) {
+          console.log("__umf__", __umf__)
           return {
             init(){},
             async get(moduleName = "") {
-              const res = await System.import(url)
               return function() {
-                return umdExposes({
-                  $umdValue: res,
-                  $moduleName: moduleName
-                })
+                return {
+                  testModule: 123
+                }
               }
             }
           }
-        })
-
-        eventBus.on("importDep", (dep) => {
-          if (referenceRemotes[dep]) {
-            return $getRemote(referenceRemotes[dep] || dep)
-          }
-        })
-        eventBus.on("importDep", (dep) => {
-          if (referenceShares[dep]) {
-            return $getShare(referenceShares[dep].import || dep, referenceShares[dep])
-          }
-        })
+        }
       }
     }).apply(compiler)
   }
 
 }
 ```
+
+| options                                      | desc                                                                                       | default      | examles             |
+|----------------------------------------------|--------------------------------------------------------------------------------------------|--------------|:--------------------|
+| includeRemotes                               | match umd remotes                                                                          | []           | [/umd-app/, "app3"] |
+| excludeRemotes                               | exclude umd remotes                                                                        | []           | ["app2"]            |
+| runtimeInject.injectVars                     | Inject variables for other runtime hooks, any runtime hook can using "\_\_umf\_\_.$injectVars" | {}           | {test: 123}         |
+| runtimeInject.initial()                      | initial runtime hooks                                                                      | function(){} |                     |
+| runtimeInject.beforeImport(url):promise<url> | Triggered before each remote is introduced                                                 | function(){} |                     |
+| runtimeInject.import(url):promise<module>    | Introduce the hook of remote, need to return a container{init, get}                        | function(){} |                     
+
+#### \_\_umf\_\_
+
+Any runtime hooks will inject the "\_\_umf\_\_" variable
+
+
+| property                                                             | desc                                                                                                                | examles                                   |
+|----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| $getRemote("request"):promise<module>                                | Get the remote module, same as import xxx from "xxxx/xxx"                                                           | $getRemote("app2/App")                    |
+| $getShare(pkg, {singleton, requiredVersion, ......}):promise<module> | Get modules from shareScopes, same as "shared" configuration                                                        | $getShare("react", {singleton: true})     |
+| $containerRemoteKeyMap: object                                       | The container name corresponds to the map of the key configured by remotes
+remotes: {"@app2/xx": "app3@http://xxx"} | $containerRemoteKeyMap.app3 // "@app2/xx" |
+| $injectVars: object                                                  | Variables injected by plugins                                                                                       |                                           |
+| $context: object                                                     | $context is an empty object by default, used to pass values between multiple hooks                                              | $context.xxx = xxx                        |
+
