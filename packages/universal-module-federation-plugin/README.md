@@ -6,7 +6,7 @@ Keep the original API of module-federation, support the integration of various m
 
 Allows you to control all the processes of each dependency by yourself
 
-## umd examles
+## UmdPlugin examles
 
 Allow module-federation to use umd module, umd dependencies can be obtained from shareScopes or remotes
 
@@ -44,7 +44,7 @@ module.exports = {
 }
 ```
 
-## umd api
+## UmdPlugin API
 
 | options                       | desc                                                                                      | default                           | examles                                           |
 |-------------------------------|-------------------------------------------------------------------------------------------|-----------------------------------|:--------------------------------------------------|
@@ -68,19 +68,35 @@ runtimeUmdExposes({ $umdValue, $moduleName }) {
 }
 ```
 
-## custom module specification
+## UniversalModuleFederationPlugin examles
 
 If you have your own module specification, you can use UniversalModuleFederationPlugin to integrate it. 
 UmdPlugin is implemented using this plugin, you can refer to the [UmdPlugin source code](./src/UmdPlugin.js)
 
+UniversalModuleFederationPlugin Exposes some hooks to customize the loading behavior of remote control
 
 ``` js
 // webpack.config.js
 const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
 
-class CustomPlugin {
+plugins: [
+    new UniversalModuleFederationPlugin({
+      includeRemotes: [/.*/],
+      excludeRemotes: [],
+      runtimeInject: {
+        injectVars: {},
+        initial: () => {},
+        beforeImport(url) {},
+        import(url) {}
+      }
+    })
+]
+```
 
-  apply(compiler) {
+
+``` js
+// webpack.config.js
+plugins: [
     new UniversalModuleFederationPlugin({
       includeRemotes: [/.*/],
       excludeRemotes: [],
@@ -119,11 +135,11 @@ class CustomPlugin {
           }
         }
       }
-    }).apply(compiler)
-  }
-
-}
+    })
+]
 ```
+
+## UniversalModuleFederationPlugin API
 
 | options                                      | desc                                                                                       | default      | examles             |
 |----------------------------------------------|--------------------------------------------------------------------------------------------|--------------|:--------------------|
