@@ -120,7 +120,7 @@ class UniversalModuleFederationPlugin {
                     'javascript',
                     new RawSource(
                       `
-                      module.exports = Promise.resolve(__umfplugin__semverhook_${this.appName}_${this.hookIndex}.import("${url}"))
+                      module.exports = Promise.resolve(window["name"] || __umfplugin__semverhook_${this.appName}_${this.hookIndex}.import("${url}"))
                         .then(function(container) {
                           window["${name}"] = container
                           return container
