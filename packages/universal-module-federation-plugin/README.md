@@ -1,7 +1,7 @@
 # universal-module-federation-plugin
 
 [![npm](https://img.shields.io/npm/v/universal-module-federation-plugin.svg)](https://www.npmjs.com/package/universal-module-federation-plugin)
-[中文文档](./README-cn.md)
+[中文文档](https://github.com/zhangHongEn/universal-module-federation-plugin/blob/main/packages/universal-module-federation-plugin/README-cn.md)
 
 Keep the original API of module-federation, support the integration of various module specifications
 
