@@ -6,6 +6,10 @@ Keep the original API of module-federation, support the integration of various m
 
 Allows you to control all the processes of each dependency by yourself
 
+## try online
+
+[mf + umd](https://stackblitz.com/github/wpmjs/examples/tree/main/umf-demo?file=app2%2Fwebpack.config.js)
+
 ## UmdPlugin examles
 
 Allow module-federation to use umd module, umd dependencies can be obtained from shareScopes or remotes
