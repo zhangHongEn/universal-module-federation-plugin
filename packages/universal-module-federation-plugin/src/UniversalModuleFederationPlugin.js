@@ -34,17 +34,32 @@ class UniversalModuleFederationPlugin {
     this.containerRemoteKeyMap = this.getContainerRemoteKeyMap(this.mfOptions.remotes)
     this.appName = this.mfOptions.name
     let injectCode = `
-    let __umf__ = {
-      $semverhook: null,
-      $getRemote: null,
-      $getShare: null,
-      $containerRemoteKeyMap: null,
-      $injectVars: null,
-      $context: {}
-    }
-    if (!window.__umfplugin__semverhook_${this.appName}_${this.hookIndex}) {
+    window.__umfplugin__ = Object.assign({
+      semverhook: {
+        // [appName_index]
+      },
+      containerImportMap: {
+        // [containerName]: promise<container>
+      }
+      
+
+    }, window.__umfplugin__ || {})
+
+    getSemverHook()
+
+    function getSemverHook() {
+      if (window.__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]) return
+      window.__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"] = require("semverhook")()
+      let __umf__ = {
+        $semverhook: null,
+        $getRemote: null,
+        $getShare: null,
+        $containerRemoteKeyMap: null,
+        $injectVars: null,
+        $context: {}
+      }
+
       ;(function () {
-        window.__umfplugin__semverhook_${this.appName}_${this.hookIndex} = require("semverhook")()
         const {findShare} = require("umfjs")
 
         function $getShare(pkg, config) {
@@ -66,12 +81,13 @@ class UniversalModuleFederationPlugin {
           return (await window[containerName].get(moduleName))()
         }
         Object.assign(__umf__, {
-          $semverhook: window.__umfplugin__semverhook_${this.appName}_${this.hookIndex},
+          $semverhook: window.__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"],
           $getRemote,
           $getShare,
           $containerRemoteKeyMap: ${JSON.stringify(this.containerRemoteKeyMap)},
         })
       })();
+
       const __runtimeInject = ${stringifyHasFn(this.options.runtimeInject)}
       __umf__.$injectVars = __runtimeInject.injectVars
       __runtimeInject.initial()
@@ -79,6 +95,7 @@ class UniversalModuleFederationPlugin {
       __umf__.$semverhook.on("import", __runtimeInject.import)
       __umf__.$semverhook.on("resolvePath", __runtimeInject.resolvePath)
       __umf__.$semverhook.on("resolveRequest", __runtimeInject.resolveRequest)
+      return window.__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]
     }
     `
     new Inject(() => {
@@ -120,7 +137,8 @@ class UniversalModuleFederationPlugin {
                     'javascript',
                     new RawSource(
                       `
-                      module.exports = Promise.resolve(window["name"] || __umfplugin__semverhook_${this.appName}_${this.hookIndex}.import("${url}"))
+                      var containerImportMap = window.__umfplugin__.containerImportMap
+                      module.exports = containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"].import("${url}"))
                         .then(function(container) {
                           window["${name}"] = container
                           return container
