@@ -51,15 +51,15 @@ module.exports = {
 
 ## UmdPlugin API
 
-| options                       | desc                                                                                      | interface                                  | default                           | examles                                           |
-|-------------------------------|-------------------------------------------------------------------------------------------|:-------------------------------------------|-----------------------------------|:--------------------------------------------------|
-| includeRemotes                | match umd remotes                                                                         | Array<RegExp                               | string>                           | []                                                |
-| excludeRemotes                | exclude umd remotes                                                                       | Array<RegExp                               | string>                           | []                                                |
-| dependencies.automatic        | Automatically match dependencies with the same name in remotes and shared                 | enum array                                 | ["shareScopes", "remotes"]        |                                                   |
-| dependencies.referenceShares  | umd dependencies use by shares                                                            | refer to __*shared*__ config                     | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
-| dependencies.referenceRemotes | umd dependencies use by remotes                                                           | Map<string, string>                        | {}                                | {react: "app5"}                                   |
-| runtimeUmdExposes             | If the umd package has multiple entries, you can use this function to resolve the entries | function({$moduleValue, $moduleName}): any | ({$umdValue}) => return $umdValue |                                                   |
-| runtimeInject                 | inject code                                                                               | refer to __*UniversalModuleFederationPlugin*__   |                                   |                                                   |
+| options                       | desc                                                                                      | interface                                      | default                           | examles                                           |
+|-------------------------------|-------------------------------------------------------------------------------------------|:-----------------------------------------------|-----------------------------------|:--------------------------------------------------|
+| includeRemotes                | match umd remotes                                                                         | Array<RegExp \| string>                        | string>                           | string>                                           |
+| excludeRemotes                | exclude umd remotes                                                                       | Array<RegExp \| string>                        | string>                           | string>                                           |
+| dependencies.automatic        | Automatically match dependencies with the same name in remotes and shared                 | enum array                                     | ["shareScopes", "remotes"]        |                                                   |
+| dependencies.referenceShares  | umd dependencies use by shares                                                            | refer to __*shared*__ config                   | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
+| dependencies.referenceRemotes | umd dependencies use by remotes                                                           | Map<string, string>                            | {}                                | {react: "app5"}                                   |
+| runtimeUmdExposes             | If the umd package has multiple entries, you can use this function to resolve the entries | function({$moduleValue, $moduleName}): any     | ({$umdValue}) => return $umdValue |                                                   |
+| runtimeInject                 | inject code                                                                               | refer to __*UniversalModuleFederationPlugin*__ |                                   |                                                   |
 
 #### runtimeUmdExposes
 ``` js

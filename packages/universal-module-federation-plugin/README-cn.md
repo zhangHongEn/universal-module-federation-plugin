@@ -50,14 +50,15 @@ module.exports = {
 
 ## UmdPlugin API
 
-| options                       | desc                                                                                      | default                           | examles                                           |
-|-------------------------------|-------------------------------------------------------------------------------------------|-----------------------------------|:--------------------------------------------------|
-| includeRemotes                | 匹配 umd remote                                                                         | []                                | [/umd-app/, "app3"]                               |
-| excludeRemotes                | 排除 umd remotes                                                                       | []                                | ["app2"]                                          |
-| dependencies.automatic        | 自动匹配remotes和shared中同名的依赖项                 | ["shareScopes", "remotes"]        |                                                   |
-| dependencies.referenceShares  | 配置从shared中寻找umd的依赖                                                         | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
-| dependencies.referenceRemotes | 配置从remotes中寻找umd的依赖                                                           | {}                                | {react: "app5"}                                   |
+| options                       | desc                                       | default                           | examles                                           |
+|-------------------------------|--------------------------------------------|-----------------------------------|:--------------------------------------------------|
+| includeRemotes                | 匹配 umd remote                            | []                                | [/umd-app/, "app3"]                               |
+| excludeRemotes                | 排除 umd remotes                           | []                                | ["app2"]                                          |
+| dependencies.automatic        | 自动匹配remotes和shared中同名的依赖项      | ["shareScopes", "remotes"]        |                                                   |
+| dependencies.referenceShares  | 配置从 __*shared*__ 中寻找umd的依赖                | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
+| dependencies.referenceRemotes | 配置从remotes中寻找umd的依赖               | {}                                | {react: "app5"}                                   |
 | runtimeUmdExposes             | 如果umd包有多个入口，可以用这个函数解析入口 | ({$umdValue}) => return $umdValue |                                                   |
+| runtimeInject                 | 同 __*UniversalModuleFederationPlugin*__   |                                   |                                                   |
 
 #### runtimeUmdExposes
 ``` js
