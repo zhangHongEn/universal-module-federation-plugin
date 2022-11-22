@@ -5,6 +5,7 @@ const PLUGIN_NAME = 'UniversalModuleFederationPlugin';
 const {ExternalModule} = require("webpack")
 const {ModuleFederationPlugin} = require("webpack").container
 const stringifyHasFn = require("./utils/stringifyHasFn")
+const formatRuntimeInject = require("./utils/formatRuntimeInject")
 
 let hookIndex = 0
 
@@ -15,14 +16,7 @@ class UniversalModuleFederationPlugin {
       excludeRemotes: [],
       runtimeInject: {}
     }, options)
-    options.runtimeInject = Object.assign({
-      injectVars: {},
-      initial(){},
-      beforeImport(){},
-      resolvePath() {},
-      resolveRequest() {},
-      import() {}
-    }, options.runtimeInject)
+    options.runtimeInject = formatRuntimeInject(options.runtimeInject)
     this.options = options
     this.appName = ""
     this.hookIndex = ++hookIndex
@@ -90,11 +84,18 @@ class UniversalModuleFederationPlugin {
 
       const __runtimeInject = ${stringifyHasFn(this.options.runtimeInject)}
       __umf__.$injectVars = __runtimeInject.injectVars
-      __runtimeInject.initial()
-      __umf__.$semverhook.on("beforeImport", __runtimeInject.beforeImport)
-      __umf__.$semverhook.on("import", __runtimeInject.import)
-      __umf__.$semverhook.on("resolvePath", __runtimeInject.resolvePath)
-      __umf__.$semverhook.on("resolveRequest", __runtimeInject.resolveRequest)
+      
+      const addHook = function(hookName, listeners) {
+        listeners.forEach(cb => {
+          __umf__.$semverhook.on(hookName, cb)
+        })
+      }
+      addHook("initial", __runtimeInject.initial)
+      addHook("beforeImport", __runtimeInject.beforeImport)
+      addHook("import", __runtimeInject.import)
+      addHook("resolvePath", __runtimeInject.resolvePath)
+      addHook("resolveRequest", __runtimeInject.resolveRequest)
+      __umf__.$semverhook.emit("initial")
       return window.__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]
     }
     `
@@ -186,6 +187,7 @@ class UniversalModuleFederationPlugin {
     }
     return this.options.includeRemotes.some(pattern => match(pattern, name))
   }
+
 }
 
 module.exports = UniversalModuleFederationPlugin;

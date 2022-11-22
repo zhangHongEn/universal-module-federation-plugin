@@ -51,14 +51,15 @@ module.exports = {
 
 ## UmdPlugin API
 
-| options                       | desc                                                                                      | default                           | examles                                           |
-|-------------------------------|-------------------------------------------------------------------------------------------|-----------------------------------|:--------------------------------------------------|
-| includeRemotes                | match umd remotes                                                                         | []                                | [/umd-app/, "app3"]                               |
-| excludeRemotes                | exclude umd remotes                                                                       | []                                | ["app2"]                                          |
-| dependencies.automatic        | Automatically match dependencies with the same name in remotes and shared                 | ["shareScopes", "remotes"]        |                                                   |
-| dependencies.referenceShares  | umd dependencies use by shares                                                            | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
-| dependencies.referenceRemotes | umd dependencies use by remotes                                                           | {}                                | {react: "app5"}                                   |
-| runtimeUmdExposes             | If the umd package has multiple entries, you can use this function to resolve the entries | ({$umdValue}) => return $umdValue |                                                   |
+| options                       | desc                                                                                      | interface                                  | default                           | examles                                           |
+|-------------------------------|-------------------------------------------------------------------------------------------|:-------------------------------------------|-----------------------------------|:--------------------------------------------------|
+| includeRemotes                | match umd remotes                                                                         | Array<RegExp                               | string>                           | []                                                |
+| excludeRemotes                | exclude umd remotes                                                                       | Array<RegExp                               | string>                           | []                                                |
+| dependencies.automatic        | Automatically match dependencies with the same name in remotes and shared                 | enum array                                 | ["shareScopes", "remotes"]        |                                                   |
+| dependencies.referenceShares  | umd dependencies use by shares                                                            | refer to __*shared*__ config                     | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
+| dependencies.referenceRemotes | umd dependencies use by remotes                                                           | Map<string, string>                        | {}                                | {react: "app5"}                                   |
+| runtimeUmdExposes             | If the umd package has multiple entries, you can use this function to resolve the entries | function({$moduleValue, $moduleName}): any | ({$umdValue}) => return $umdValue |                                                   |
+| runtimeInject                 | inject code                                                                               | refer to __*UniversalModuleFederationPlugin*__   |                                   |                                                   |
 
 #### runtimeUmdExposes
 ``` js
@@ -146,14 +147,14 @@ plugins: [
 
 ## UniversalModuleFederationPlugin API
 
-| options                                      | desc                                                                                       | default      | examles             |
-|----------------------------------------------|--------------------------------------------------------------------------------------------|--------------|:--------------------|
-| includeRemotes                               | match umd remotes                                                                          | []           | [/umd-app/, "app3"] |
-| excludeRemotes                               | exclude umd remotes                                                                        | []           | ["app2"]            |
-| runtimeInject.injectVars                     | Inject variables for other runtime hooks, any runtime hook can using "\_\_umf\_\_.$injectVars" | {}           | {test: 123}         |
-| runtimeInject.initial()                      | initial runtime hooks                                                                      | function(){} |                     |
-| runtimeInject.beforeImport(url):promise<url> | Triggered before each remote is introduced                                                 | function(){} |                     |
-| runtimeInject.import(url):promise<module>    | Introduce the hook of remote, need to return a container{init, get}                        | function(){} |                     
+| options                                      | desc                                                                                           | default | examles             |
+|----------------------------------------------|------------------------------------------------------------------------------------------------|---------|:--------------------|
+| includeRemotes                               | match umd remotes                                                                              | []      | [/umd-app/, "app3"] |
+| excludeRemotes                               | exclude umd remotes                                                                            | []      | ["app2"]            |
+| runtimeInject.injectVars                     | Inject variables for other runtime hooks, any runtime hook can using "\_\_umf\_\_.$injectVars" | {}      | {test: 123}         |
+| runtimeInject.initial()                      | initial runtime hooks                                                                          | []      |                     |
+| runtimeInject.beforeImport(url):promise<url> | Triggered before each remote is introduced                                                     | []      |                     |
+| runtimeInject.import(url):promise<module>    | Introduce the hook of remote, need to return a container{init, get}                            | []      |                     |
 
 #### \_\_umf\_\_
 
