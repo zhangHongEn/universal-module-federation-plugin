@@ -71,16 +71,15 @@ class InjectPlugin {
       (compilation, { normalModuleFactory }) => {
         normalModuleFactory.hooks.afterResolve.tap(
           this.constructor.name,
-          // Add loader to process files that matches specified criteria
-          (resolveData) => {
-            injectLoader(resolveData.createData, {
+          // Add react-refresh loader to process files that matches specified criteria
+          (data) => {
+            data = injectLoader(data, {
               match: entryInjectMatch,
               options: {
-                const: compilation.runtimeTemplate.supportsConst(),
-                esModule: false,
                 injectId: this.injectId
-              },
-            }, entryInjectLoaderPath);
+              }
+            }, entryInjectLoaderPath)
+            return data;
           }
         );
       })

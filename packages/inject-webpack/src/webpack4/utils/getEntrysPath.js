@@ -18,5 +18,5 @@ const fs = require("fs")
   }
   return dep.dependencies
     .filter(dep => dep.constructor.name.indexOf("EntryDependency") > -1)
-    .map(dep => module.exports.getEntrysPath(dep, context, extensions)[0])
+    .map(dep => module.exports.getEntrysPath({dep, context, extensions})[0])
 }

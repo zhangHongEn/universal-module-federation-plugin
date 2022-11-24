@@ -1,8 +1,9 @@
-
+const {getOptions} = require("loader-utils")
 module.exports = function lod (source, map, meta) {
-  if (module.exports.injectMap[`${this.getOptions().injectId}__entryResources`].has(this.resourcePath + this.resourceQuery)) {
+  const loaderOptions = getOptions(this)
+  if (module.exports.injectMap[`${loaderOptions.injectId}__entryResources`].has(this.resourcePath + this.resourceQuery)) {
     return `
-    ${module.exports.injectMap[`${this.getOptions().injectId}__code`]}
+    ${module.exports.injectMap[`${loaderOptions.injectId}__code`]}
     \r\n;
     ${source}
     `
