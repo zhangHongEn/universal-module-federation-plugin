@@ -3,6 +3,8 @@
 [![npm](https://img.shields.io/npm/v/universal-module-federation-plugin.svg)](https://www.npmjs.com/package/universal-module-federation-plugin)
 [中文文档](https://github.com/zhangHongEn/universal-module-federation-plugin/blob/main/packages/universal-module-federation-plugin/README-cn.md)
 
+support [webpack-4](https://github.com/module-federation/webpack-4)、5
+
 Keep the original API of module-federation, support the integration of various module specifications
 
 Allows you to control all the processes of each dependency by yourself
