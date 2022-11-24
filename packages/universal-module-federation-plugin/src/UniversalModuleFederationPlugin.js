@@ -2,8 +2,7 @@
 const { RawSource } = require('webpack-sources');
 const Inject = require("inject-webpack")
 const PLUGIN_NAME = 'UniversalModuleFederationPlugin';
-const {ExternalModule} = require("webpack")
-const {ModuleFederationPlugin} = require("webpack").container
+const getWebpackVersion = require("./utils/getWebpackVersion")
 const stringifyHasFn = require("stringify-has-fn")
 const formatRuntimeInject = require("./utils/formatRuntimeInject")
 
@@ -22,10 +21,13 @@ class UniversalModuleFederationPlugin {
     this.hookIndex = ++hookIndex
     this.mfOptions = null
     this.containerRemoteKeyMap = null
+    this.remoteMap = null
+    this.webpackVersion = getWebpackVersion()
   }
   apply(compiler) {
-    this.mfOptions = this.getMfOptions(compiler.options.plugins)
+    this.mfOptions = this.getMfInstance(compiler.options.plugins)._options
     this.containerRemoteKeyMap = this.getContainerRemoteKeyMap(this.mfOptions.remotes)
+    this.remoteMap = this.getRemoteMap(this.mfOptions.remotes)
     this.appName = this.mfOptions.name
     let injectCode = `
     window.__umfplugin__ = Object.assign({
@@ -57,7 +59,7 @@ class UniversalModuleFederationPlugin {
         const {findShare} = require("umfjs")
 
         function $getShare(pkg, config) {
-          var share = findShare(pkg, config, __webpack_share_scopes__)
+          var share = findShare(pkg, config, typeof __webpack_share_scopes__ !== "undefined" ? __webpack_share_scopes__ : window.usemf.getShareScopes())
           if (share) {
             return share[1].get().then(res => res())
           }
@@ -102,64 +104,22 @@ class UniversalModuleFederationPlugin {
     new Inject(() => {
       return injectCode
     }).apply(compiler)
-    new Inject(() => {
-      return `
-      ${Object.keys(this.mfOptions.remotes)
-        .filter(remoteName => this.matchRemotes(remoteName))
-        .map(remoteName => `require("${remoteName}")`)
-        .join(";")
-      }
-      `
-    }, {
-      scopes: ["exposesEntry"]
-    }).apply(compiler)
 
-    compiler.hooks.make.tap(PLUGIN_NAME, compilation => {
-        const scriptExternalModules = [];
-
-        compilation.hooks.buildModule.tap(PLUGIN_NAME, module => {
-            if (module instanceof ExternalModule && module.externalType === 'script') {
-                scriptExternalModules.push(module);
-            }
-        });
-
-        compilation.hooks.afterCodeGeneration.tap(PLUGIN_NAME, () => {
-            scriptExternalModules.map(module => {
-              // console.log(1111, module)
-                const request = (module.request || "")
-                const url = request.split("@").slice(1).join("@")
-                const name = request.split("@")[0]
-                if (!this.matchRemotes(this.containerRemoteKeyMap[name])) {
-                  return
-                }
-                const sourceMap = compilation.codeGenerationResults.get(module).sources;
-                const rawSource = sourceMap.get('javascript');
-                sourceMap.set(
-                    'javascript',
-                    new RawSource(
-                      `
-                      var containerImportMap = window.__umfplugin__.containerImportMap
-                      module.exports = containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"].import("${url}"))
-                        .then(function(container) {
-                          window["${name}"] = container
-                          return container
-                        })
-                      `
-                    )
-                );
-            });
-        });
-    });
+    this.prefetchRemotes(compiler)
+    if (this.webpackVersion === 5) {
+      this.interceptFetchRemotesWebpack5(compiler)
+    } else {
+      this.interceptFetchRemotesWebpack4(compiler)
+    }
   }
 
-  getMfOptions(plugins) {
-    const federationOptions = plugins.filter(
+  getMfInstance(plugins) {
+    const federationInstance = plugins.filter(
       (plugin) => {
-        return plugin instanceof ModuleFederationPlugin;
+        return plugin.constructor.name === "ModuleFederationPlugin"
       }
     )[0]
-    const inheritedPluginOptions = federationOptions._options
-    return inheritedPluginOptions
+    return federationInstance
   }
 
   getContainerRemoteKeyMap(remotes = {}) {
@@ -175,6 +135,18 @@ class UniversalModuleFederationPlugin {
     return map
   }
 
+  getRemoteMap(remotes = {}) {
+    const map = {}
+    Object.keys(remotes).forEach(key => {
+      const remoteStr = typeof remotes[key] === "string" ? remotes[key] : remotes[key].external
+      if (remoteStr.indexOf("@") === -1) {
+        return
+      }
+      map[key] = remoteStr
+    })
+    return map
+  }
+
   matchRemotes(name = "") {
     function match(patternOrStr, val) {
       if (typeof patternOrStr === "string") {
@@ -186,6 +158,82 @@ class UniversalModuleFederationPlugin {
       return false
     }
     return this.options.includeRemotes.some(pattern => match(pattern, name))
+  }
+
+  /**
+   * only umf rmeote
+   */
+  prefetchRemotes(compiler) {
+    if (this.webpackVersion === 4) return
+    new Inject(() => {
+      return `
+      ${Object.keys(this.mfOptions.remotes)
+        .filter(remoteName => this.matchRemotes(remoteName))
+        .map(remoteName => `require("${remoteName}")`)
+        .join(";")
+      }
+      `
+    }, {
+      scopes: ["exposesEntry"]
+    }).apply(compiler)
+  }
+
+  interceptFetchRemotesWebpack4(compiler) {
+    const instance = this.getMfInstance(compiler.options.plugins)
+    instance.hooks.runtimeFetchContainer.tap(PLUGIN_NAME, (id, url) => {
+      if (!this.remoteMap[id]) return
+      if (!this.matchRemotes(id)) return
+      const name = this.remoteMap[id].split("@")[0]
+      return `function () {
+        var containerImportMap = window.__umfplugin__.containerImportMap
+        containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"].import("${url}"))
+          .then(function(container) {
+            window["${name}"] = container
+            return container
+          })
+        return containerImportMap["${name}"]
+      }`
+    })
+  }
+
+  interceptFetchRemotesWebpack5(compiler) {
+    compiler.hooks.make.tap(PLUGIN_NAME, compilation => {
+      const {ExternalModule} = require("webpack")
+      const scriptExternalModules = [];
+
+      compilation.hooks.buildModule.tap(PLUGIN_NAME, module => {
+          if (module instanceof ExternalModule && module.externalType === 'script') {
+              scriptExternalModules.push(module);
+          }
+      });
+
+      compilation.hooks.afterCodeGeneration.tap(PLUGIN_NAME, () => {
+          scriptExternalModules.map(module => {
+            // console.log(1111, module)
+              const request = (module.request || "")
+              const url = request.split("@").slice(1).join("@")
+              const name = request.split("@")[0]
+              if (!this.matchRemotes(this.containerRemoteKeyMap[name])) {
+                return
+              }
+              const sourceMap = compilation.codeGenerationResults.get(module).sources;
+              const rawSource = sourceMap.get('javascript');
+              sourceMap.set(
+                  'javascript',
+                  new RawSource(
+                    `
+                    var containerImportMap = window.__umfplugin__.containerImportMap
+                    module.exports = containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"].import("${url}"))
+                      .then(function(container) {
+                        window["${name}"] = container
+                        return container
+                      })
+                    `
+                  )
+              );
+          });
+      });
+  });
   }
 
 }

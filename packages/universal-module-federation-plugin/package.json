@@ -1,6 +1,6 @@
 {
   "name": "universal-module-federation-plugin",
-  "version": "0.3.9",
+  "version": "0.3.9-beta.1",
   "description": "Module federation supports the integration of various specifications, such as umd",
   "main": "src/index.js",
   "keywords": [
