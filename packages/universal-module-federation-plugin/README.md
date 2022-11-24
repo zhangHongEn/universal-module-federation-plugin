@@ -151,8 +151,8 @@ plugins: [
 
 | options                                      | desc                                                                                           | default | examles             |
 |----------------------------------------------|------------------------------------------------------------------------------------------------|---------|:--------------------|
-| includeRemotes                               | match umd remotes                                                                              | []      | [/umd-app/, "app3"] |
-| excludeRemotes                               | exclude umd remotes                                                                            | []      | ["app2"]            |
+| includeRemotes                               | match umf remotes                                                                              | []      | [/umf-app/, "app3"] |
+| excludeRemotes                               | exclude umf remotes                                                                            | []      | ["app2"]            |
 | runtimeInject.injectVars                     | Inject variables for other runtime hooks, any runtime hook can using "\_\_umf\_\_.$injectVars" | {}      | {test: 123}         |
 | runtimeInject.initial()                      | initial runtime hooks                                                                          | []      |                     |
 | runtimeInject.beforeImport(url):promise<url> | Triggered before each remote is introduced                                                     | []      |                     |

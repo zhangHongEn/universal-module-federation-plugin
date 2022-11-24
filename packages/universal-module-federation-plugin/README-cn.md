@@ -149,8 +149,8 @@ plugins: [
 
 | options                                      | desc                                                                                       | default      | examles             |
 |----------------------------------------------|--------------------------------------------------------------------------------------------|--------------|:--------------------|
-| includeRemotes                               | 匹配 umd remotes                                                                          | []           | [/umd-app/, "app3"] |
-| excludeRemotes                               | 排除 umd remotes                                                                        | []           | ["app2"]            |
+| includeRemotes                               | 匹配 umf remotes                                                                          | []           | [/umf-app/, "app3"] |
+| excludeRemotes                               | 排除 umf remotes                                                                        | []           | ["app2"]            |
 | runtimeInject.injectVars                     | 为runtime hooks注入变量，任何运行时挂钩都可以使用"\_\_umf\_\_.$injectVars"访问 | {}           | {test: 123}         |
 | runtimeInject.initial()                      | 初始化阶段的runtime hook                                                                      | function(){} |                     |
 | runtimeInject.beforeImport(url):promise<url> | 准备引入remote时触发 | function(){} |                     |
