@@ -21,6 +21,7 @@
     "packages/umfjs",
     "packages/semverhook",
     "packages/inject-webpack",
-    "packages/universal-module-federation-plugin"
+    "packages/universal-module-federation-plugin",
+    "packages/stringify-has-fn"
   ]
 }

@@ -1,0 +1,37 @@
+{
+  "name": "stringify-has-fn",
+  "version": "1.0.0",
+  "description": "JSON.stringify has function",
+  "main": "src/index.js",
+  "devDependencies": {
+    "@babel/core": "7.16.0",
+    "clean-webpack-plugin": "4",
+    "cross-env": "^7.0.3",
+    "@babel/plugin-transform-runtime": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "babel-loader": "^8.2.2",
+    "html-webpack-plugin": "^5.3.1",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^4.0.0"
+  },
+  "dependencies": {
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack --mode production",
+    "start": "cross-env NODE_ENV=development webpack serve --mode development"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/issues"
+  },
+  "homepage": "https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/stringify-has-fn",
+  "keywords": [
+    "json",
+    "stringify",
+    "function",
+    "async",
+    "ecmascript"
+  ]
+}

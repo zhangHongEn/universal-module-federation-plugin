@@ -4,7 +4,7 @@ const Inject = require("inject-webpack")
 const PLUGIN_NAME = 'UniversalModuleFederationPlugin';
 const {ExternalModule} = require("webpack")
 const {ModuleFederationPlugin} = require("webpack").container
-const stringifyHasFn = require("./utils/stringifyHasFn")
+const stringifyHasFn = require("stringify-has-fn")
 const formatRuntimeInject = require("./utils/formatRuntimeInject")
 
 let hookIndex = 0

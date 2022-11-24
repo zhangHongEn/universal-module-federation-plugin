@@ -28,11 +28,9 @@ module.exports = function () {
    * @param {*} request {name, version, entry, query}
    */
   function resolve(id) {
-    var url
+    var url = id
     var request
-    if (/^https?:\/\//.test(id)) {
-      url = id
-    } else {
+    if (!(/^https?:\/\//.test(id))) {
       try {
         request = resolveRequest(id)
       } catch (e) {
