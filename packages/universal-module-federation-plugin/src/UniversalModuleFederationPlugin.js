@@ -22,9 +22,10 @@ class UniversalModuleFederationPlugin {
     this.mfOptions = null
     this.containerRemoteKeyMap = null
     this.remoteMap = null
-    this.webpackVersion = getWebpackVersion()
+    this.webpackVersion = null
   }
   apply(compiler) {
+    this.webpackVersion = getWebpackVersion(compiler)
     this.mfOptions = this.getMfInstance(compiler.options.plugins)._options
     this.containerRemoteKeyMap = this.getContainerRemoteKeyMap(this.mfOptions.remotes)
     this.remoteMap = this.getRemoteMap(this.mfOptions.remotes)
