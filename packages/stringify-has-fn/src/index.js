@@ -14,7 +14,7 @@ function stringifyHasFn (obj) {
     var fnStr = fnInfo[1].toString()
     var isAsyncFn = fnStr.substring(0, fnStr.indexOf("(")).indexOf("async ") > -1
     var argsAndBody = fnStr.match(/\([\s\S]*\}/)[0]
-    var isArrorFun = /^\([\s\S]*\)[\s]*=>[\s]*\{/.test(argsAndBody)
+    var isArrorFun = /^\([\s]*\)[\s]*=>[\s]*\{/.test(argsAndBody)
     var fnStatement = isArrorFun ? argsAndBody : `function ${argsAndBody}`
     if (isAsyncFn) fnStatement = `async ${fnStatement}`
     

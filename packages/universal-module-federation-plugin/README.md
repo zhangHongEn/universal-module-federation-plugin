@@ -114,18 +114,15 @@ plugins: [
           testInjectVar: 111,
         },
         // any runtime hook can using "__umf__"
-        initial: () => {
+        initial: async () => {
           const {$getShare, $getRemote, $containerRemoteKeyMap, $injectVars, $context} = __umf__
           const testInjectVar = $injectVars
           console.log("__umf__", __umf__, testInjectVar)
           // $context is an empty object by default, used to pass values between multiple hooks
           $context.testA = "testA"
-        },
-        beforeImport(url) {
-          console.log(__umf__.$context)
-          return new Promise(resolve => {
+          await new Promise(resolve => {
             setTimeout(function () {
-              resolve(url)
+              resolve()
             }, 3000)
           })
         },
@@ -154,7 +151,7 @@ plugins: [
 | includeRemotes                               | match umf remotes                                                                              | []      | [/umf-app/, "app3"] |
 | excludeRemotes                               | exclude umf remotes                                                                            | []      | ["app2"]            |
 | runtimeInject.injectVars                     | Inject variables for other runtime hooks, any runtime hook can using "\_\_umf\_\_.$injectVars" | {}      | {test: 123}         |
-| runtimeInject.initial()                      | initial runtime hooks                                                                          | []      |                     |
+| runtimeInject.initial():promise                      | initial runtime hooks                                                                          | []      |                     |
 | runtimeInject.beforeImport(url):promise<url> | Triggered before each remote is introduced                                                     | []      |                     |
 | runtimeInject.import(url):promise<module>    | Introduce the hook of remote, need to return a container{init, get}                            | []      |                     |
 

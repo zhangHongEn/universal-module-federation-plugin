@@ -93,7 +93,16 @@ class UniversalModuleFederationPlugin {
           __umf__.$semverhook.on(hookName, cb)
         })
       }
-      addHook("initial", __runtimeInject.initial)
+      var initialPromises = []
+      addHook("initial", [function () {
+        __runtimeInject.initial.forEach(initial => {
+          initialPromises.push(Promise.resolve(initial()))
+        })
+      }])
+      addHook("beforeImport", [async function (url) {
+        await Promise.all(initialPromises)
+        return url
+      }])
       addHook("beforeImport", __runtimeInject.beforeImport)
       addHook("import", __runtimeInject.import)
       addHook("resolvePath", __runtimeInject.resolvePath)

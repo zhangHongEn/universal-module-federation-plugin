@@ -112,18 +112,15 @@ plugins: [
           testInjectVar: 111,
         },
         // 任意runtime hooks都会注入"__umf__"这个变量
-        initial: () => {
+        initial: async () => {
           const {$getShare, $getRemote, $containerRemoteKeyMap, $injectVars, $context} = __umf__
           const testInjectVar = $injectVars
           console.log("__umf__", __umf__, testInjectVar)
-          // $context 默认为空对象，用于多个hook之间传递值
+          // $context is an empty object by default, used to pass values between multiple hooks
           $context.testA = "testA"
-        },
-        beforeImport(url) {
-          console.log(__umf__.$context)
-          return new Promise(resolve => {
+          await new Promise(resolve => {
             setTimeout(function () {
-              resolve(url)
+              resolve()
             }, 3000)
           })
         },
@@ -152,7 +149,7 @@ plugins: [
 | includeRemotes                               | 匹配 umf remotes                                                                          | []           | [/umf-app/, "app3"] |
 | excludeRemotes                               | 排除 umf remotes                                                                        | []           | ["app2"]            |
 | runtimeInject.injectVars                     | 为runtime hooks注入变量，任何运行时挂钩都可以使用"\_\_umf\_\_.$injectVars"访问 | {}           | {test: 123}         |
-| runtimeInject.initial()                      | 初始化阶段的runtime hook                                                                      | function(){} |                     |
+| runtimeInject.initial():promise                      | 初始化阶段的runtime hook                                                                      | function(){} |                     |
 | runtimeInject.beforeImport(url):promise<url> | 准备引入remote时触发 | function(){} |                     |
 | runtimeInject.import(url):promise<module>    | remote的引入钩子, 需要返回一个 container{init, get}                        | function(){} |                     
 
