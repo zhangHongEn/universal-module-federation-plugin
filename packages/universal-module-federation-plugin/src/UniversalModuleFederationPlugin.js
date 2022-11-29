@@ -175,17 +175,17 @@ class UniversalModuleFederationPlugin {
    */
   prefetchRemotes(compiler) {
     if (this.webpackVersion === 4) return
-    new Inject(() => {
-      return `
-      ${Object.keys(this.mfOptions.remotes)
-        .filter(remoteName => this.matchRemotes(remoteName))
-        .map(remoteName => `require("${remoteName}")`)
-        .join(";")
-      }
-      `
-    }, {
-      scopes: ["exposesEntry"]
-    }).apply(compiler)
+    // new Inject(() => {
+    //   return `
+    //   ${Object.keys(this.mfOptions.remotes)
+    //     .filter(remoteName => this.matchRemotes(remoteName))
+    //     .map(remoteName => `require("${remoteName}")`)
+    //     .join(";")
+    //   }
+    //   `
+    // }, {
+    //   scopes: ["entry", "exposesEntry"]
+    // }).apply(compiler)
   }
 
   interceptFetchRemotesWebpack4(compiler) {
@@ -212,7 +212,7 @@ class UniversalModuleFederationPlugin {
       const scriptExternalModules = [];
 
       compilation.hooks.buildModule.tap(PLUGIN_NAME, module => {
-          if (module instanceof ExternalModule && module.externalType === 'script') {
+          if (module instanceof ExternalModule) {
               scriptExternalModules.push(module);
           }
       });
