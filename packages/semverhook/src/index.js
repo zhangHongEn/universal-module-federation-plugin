@@ -27,7 +27,7 @@ module.exports = function () {
    * 
    * @param {*} request {name, version, entry, query}
    */
-  function resolve(id) {
+  function resolve(id, options) {
     var url = id
     var request
     if (!(/^https?:\/\//.test(id))) {
@@ -37,8 +37,8 @@ module.exports = function () {
 
       }
       if (request) {
-        request = emit("resolveRequest", [request]) || request
-        url = emit("resolvePath", [request]) || url
+        request = emit("resolveRequest", [request, options]) || request
+        url = emit("resolvePath", [request, options]) || url
       }
     }
     if (cacheMap[id]) {
@@ -50,13 +50,14 @@ module.exports = function () {
     }
   }
 
-  function importFn(id) {
+  function importFn(id, options) {
+    options = options || {}
     if (cacheMap[id]) return cacheMap[id].resultModule
     cacheMap[id] = {}
     id = id || ""
-    return Promise.resolve(emit("beforeImport", [id]) || id).then(function (id) {
-      const {url, request} = resolve(id)
-      var resultModule = emit("import", [url, request])
+    return Promise.resolve(emit("beforeImport", [id, options]) || id).then(function (id) {
+      const url = resolve(id, options).url
+      var resultModule = emit("import", [url, options])
       cacheMap[id].resultModule = resultModule
       Promise.resolve(resultModule).then(function (val) {
         cacheMap[id].resultModuleSync = val

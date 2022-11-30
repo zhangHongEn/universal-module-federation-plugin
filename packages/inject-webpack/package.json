@@ -1,6 +1,6 @@
 {
   "name": "inject-webpack",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Inject the first executed code, support webpack5 and module-federation",
   "main": "src/index.js",
   "devDependencies": {},

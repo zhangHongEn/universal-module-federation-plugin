@@ -39,9 +39,10 @@ class InjectPlugin {
     injectMap[this.injectId + "__entryResources"] = new Set()
 
     const scopes = this.options.scopes
-    const hasEntry = scopes.indexOf("entry") > -1
     const hasExposes = scopes.indexOf("exposesEntry") > -1
     const hasRemoteEntry = scopes.indexOf("remoteEntry") > -1
+    // 注入remoteEntry需要依赖先将module注入到entry, 所以如果注入remoteEntry, 也会自动注入进到entry
+    const hasEntry = scopes.indexOf("entry") > -1 || hasRemoteEntry
     if (hasEntry || hasExposes) {
       injectMap[this.injectId + "__code"] = `;require(${JSON.stringify(this.virtualSemverPath)});`
 

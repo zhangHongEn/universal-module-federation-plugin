@@ -29,7 +29,7 @@ class UniversalModuleFederationPlugin {
     this.containerRemoteKeyMap = this.getContainerRemoteKeyMap(this.mfOptions.remotes)
     this.remoteMap = this.getRemoteMap(this.mfOptions.remotes)
     this.appName = this.mfOptions.name
-    options.runtimeInject = this.formatRuntimeInject(options.runtimeInject)
+    this.options.runtimeInject = this.formatRuntimeInject(this.options.runtimeInject)
     let injectCode = `
     window.__umfplugin__ = Object.assign({
       semverhook: {
@@ -221,7 +221,8 @@ class UniversalModuleFederationPlugin {
               const request = (module.request || "")
               const url = request.split("@").slice(1).join("@")
               const name = request.split("@")[0]
-              if (!this.matchRemotes(this.containerRemoteKeyMap[name])) {
+              const remoteKey = this.containerRemoteKeyMap[name]
+              if (!this.matchRemotes(remoteKey)) {
                 return
               }
               const sourceMap = compilation.codeGenerationResults.get(module).sources;
@@ -231,7 +232,7 @@ class UniversalModuleFederationPlugin {
                   new RawSource(
                     `
                     var containerImportMap = window.__umfplugin__.containerImportMap
-                    module.exports = containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"].import("${url}"))
+                    module.exports = containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"].import("${url}", {name: "${name}", remoteKey: "${remoteKey}"}))
                       .then(function(container) {
                         window["${name}"] = container
                         return container
@@ -246,7 +247,7 @@ class UniversalModuleFederationPlugin {
 
   formatRuntimeInject(runtimeInject = {}) {
     if (typeof runtimeInject === "function") {
-      runtimeInject = runtimeInject(mfOptions, this)
+      runtimeInject = runtimeInject(this.mfOptions, this)
     }
     ["initial", "beforeImport", "resolvePath", "resolveRequest", "import"].forEach(key => {
       if (!runtimeInject[key]) {
