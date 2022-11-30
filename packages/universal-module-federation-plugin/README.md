@@ -22,7 +22,7 @@ Allows you to control all the processes of each dependency by yourself
     * [dynamic remotes](#dynamic-remotes)
     * [UniversalModuleFederationPlugin examles](#UniversalModuleFederationPlugin-examles)
     * [UniversalModuleFederationPlugin API](#UniversalModuleFederationPlugin-API)
-    * [Get module-federation configuration at runtime](#Get-module-federation–configuration-at-runtime)
+    * [Get module-federation configuration at runtime](#Get-module-federation-configuration-at-runtime)
 
 ## UmdPlugin examles
 
