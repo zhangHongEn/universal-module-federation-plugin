@@ -13,6 +13,17 @@ Allows you to control all the processes of each dependency by yourself
 
 [mf + umd](https://stackblitz.com/github/wpmjs/examples/tree/main/umf-demo?file=app2%2Fwebpack.config.js)
 
+## Table of contents
+
+* umd federation
+    * [UmdPlugin examles](#UmdPlugin-examles)
+    * [UmdPlugin API](#UmdPlugin-API)
+* UniversalModuleFederation
+    * [dynamic remotes](#dynamic-remotes)
+    * [UniversalModuleFederationPlugin examles](UniversalModuleFederationPlugin-examles)
+    * [UniversalModuleFederationPlugin API](UniversalModuleFederationPlugin-API)
+    * [module-federation options inject to runtime](#module-federation-options-inject-to-runtime)
+
 ## UmdPlugin examles
 
 Allow module-federation to use umd module, umd dependencies can be obtained from shareScopes or remotes
@@ -206,6 +217,30 @@ module.exports = {
               return window[name]
             }
           }
+        }),
+    ]
+}
+```
+
+## module-federation options inject to runtime
+
+"runtimeInject" Can be set to function
+
+``` js
+// webpack.config.js
+const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
+
+module.exports = {
+    plugins: [
+        new UniversalModuleFederationPlugin({
+          runtimeInject: (mfOptions) => ({
+            injectVars: {
+                mfOptions
+            },
+            initial() {
+                console.log("mfOptions", __umf__.$injectVars.mfOptions)
+            }
+          })
         }),
     ]
 }

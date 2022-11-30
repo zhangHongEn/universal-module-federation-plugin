@@ -12,6 +12,17 @@
 
 [mf + umd](https://stackblitz.com/github/wpmjs/examples/tree/main/umf-demo?file=app2%2Fwebpack.config.js)
 
+## 目录
+
+* umd federation
+    * [UmdPlugin examles](#UmdPlugin-examles)
+    * [UmdPlugin API](#UmdPlugin-API)
+* UniversalModuleFederation
+    * [dynamic remotes](#dynamic-remotes)
+    * [UniversalModuleFederationPlugin examles](UniversalModuleFederationPlugin-examles)
+    * [UniversalModuleFederationPlugin API](UniversalModuleFederationPlugin-API)
+    * [module-federation options inject to runtime](#module-federation-options-inject-to-runtime)
+
 ## UmdPlugin示例
 
 允许模块联合使用umd模块，可以从shareScopes或remotes获取umd依赖项
@@ -203,6 +214,30 @@ module.exports = {
               return window[name]
             }
           }
+        }),
+    ]
+}
+```
+
+## module-federation options 注入到运行时
+
+"runtimeInject" 可以设置为 function
+
+``` js
+// webpack.config.js
+const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
+
+module.exports = {
+    plugins: [
+        new UniversalModuleFederationPlugin({
+          runtimeInject: (mfOptions) => ({
+            injectVars: {
+                mfOptions
+            },
+            initial() {
+                console.log("mfOptions", __umf__.$injectVars.mfOptions)
+            }
+          })
         }),
     ]
 }
