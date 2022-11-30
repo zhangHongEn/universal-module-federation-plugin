@@ -94,8 +94,8 @@ plugins: [
       runtimeInject: {
         injectVars: {},
         initial: () => {},
-        beforeImport(url) {},
-        import(url) {}
+        beforeImport(url, options) {},
+        import(url, options) {}
       }
     })
 ]
@@ -126,7 +126,10 @@ plugins: [
             }, 3000)
           })
         },
-        import(url) {
+        // remoteA: "a@http://remoteA.com"
+        // name: "a"
+        // remoteKey: "remoteA"
+        import(url, {name, remoteKey}) {
           console.log("__umf__", __umf__)
           return {
             init(){},
@@ -152,8 +155,8 @@ plugins: [
 | excludeRemotes                               | exclude umf remotes                                                                            | []      | ["app2"]            |
 | runtimeInject.injectVars                     | Inject variables for other runtime hooks, any runtime hook can using "\_\_umf\_\_.$injectVars" | {}      | {test: 123}         |
 | runtimeInject.initial():promise                      | initial runtime hooks                                                                          | []      |                     |
-| runtimeInject.beforeImport(url):promise<url> | Triggered before each remote is introduced                                                     | []      |                     |
-| runtimeInject.import(url):promise<module>    | Introduce the hook of remote, need to return a container{init, get}                            | []      |                     |
+| runtimeInject.beforeImport(url, options):promise<url> | Triggered before each remote is introduced                                                     | []      |                     |
+| runtimeInject.import(url, options):promise<module>    | Introduce the hook of remote, need to return a container{init, get}                            | []      |                     |
 
 #### \_\_umf\_\_
 
