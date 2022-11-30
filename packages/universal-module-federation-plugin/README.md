@@ -20,9 +20,9 @@ Allows you to control all the processes of each dependency by yourself
     * [UmdPlugin API](#UmdPlugin-API)
 * UniversalModuleFederation
     * [dynamic remotes](#dynamic-remotes)
-    * [UniversalModuleFederationPlugin examles](UniversalModuleFederationPlugin-examles)
+    * [UniversalModuleFederationPlugin examles](#UniversalModuleFederationPlugin-examles)
     * [UniversalModuleFederationPlugin API](UniversalModuleFederationPlugin-API)
-    * [module-federation options inject to runtime](#module-federation-options-inject-to-runtime)
+    * [Get module-federation configuration at runtime](#Get-module-federation–configuration-at-runtime)
 
 ## UmdPlugin examles
 
@@ -222,7 +222,7 @@ module.exports = {
 }
 ```
 
-## module-federation options inject to runtime
+## Get module-federation configuration at runtime
 
 "runtimeInject" Can be set to function
 

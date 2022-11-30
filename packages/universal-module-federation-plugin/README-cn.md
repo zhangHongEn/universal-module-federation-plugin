@@ -15,13 +15,13 @@
 ## 目录
 
 * umd federation
-    * [UmdPlugin examles](#UmdPlugin-examles)
+    * [UmdPlugin examles](#UmdPlugin示例)
     * [UmdPlugin API](#UmdPlugin-API)
 * UniversalModuleFederation
     * [dynamic remotes](#dynamic-remotes)
-    * [UniversalModuleFederationPlugin examles](UniversalModuleFederationPlugin-examles)
-    * [UniversalModuleFederationPlugin API](UniversalModuleFederationPlugin-API)
-    * [module-federation options inject to runtime](#module-federation-options-inject-to-runtime)
+    * [UniversalModuleFederationPlugin 示例](#UniversalModuleFederationPlugin-示例)
+    * [UniversalModuleFederationPlugin API](#UniversalModuleFederationPlugin-API)
+    * [运行时获取module-federation配置](#运行时获取module-federation配置)
 
 ## UmdPlugin示例
 
@@ -219,7 +219,7 @@ module.exports = {
 }
 ```
 
-## module-federation options 注入到运行时
+## 运行时获取module-federation配置
 
 "runtimeInject" 可以设置为 function
 
