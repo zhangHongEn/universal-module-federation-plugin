@@ -22,6 +22,7 @@
     "packages/semverhook",
     "packages/inject-webpack",
     "packages/universal-module-federation-plugin",
-    "packages/stringify-has-fn"
+    "packages/stringify-has-fn",
+    "packages/mf-example"
   ]
 }

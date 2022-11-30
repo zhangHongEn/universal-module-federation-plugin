@@ -169,3 +169,41 @@ plugins: [
 | $context: object                                                     | $context 默认为空对象，用于多个hook之间传递值                                   | $context.xxx = xxx                         |
 | -                                                                    | -                                                                                                                    | -                                          |
 
+
+## dynamic remotes
+
+保持module-federation原本用法, 仅仅使用动态远程能力
+
+``` js
+// webpack.config.js
+const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
+
+module.exports = {
+    plugins: [
+        new ModuleFederationPlugin({
+          // ...,
+          remotes: {
+            // 1: {name}@{url}
+            // 2: {name}@{dynamic semver remote}
+            app2: "app2@http://localhost:3000/remoteEntry.js",
+            "mf-app-01": "mfapp01@mf-app-01@1.0.2/dist/remoteEntry.js"
+          },
+          shared: { react: { singleton: true } },
+        }),
+        new UniversalModuleFederationPlugin({
+          includeRemotes: [/./],
+          runtimeInject: {
+            resolvePath({name, version, entry, query}) {
+              return `https://cdn.jsdelivr.net/npm/${name}@${version}/${entry}?${query}`
+            },
+            async import(url, {name}) {
+              await new Promise(resolve => {
+                __webpack_require__.l(url, resolve)
+              })
+              return window[name]
+            }
+          }
+        }),
+    ]
+}
+```

@@ -1,0 +1,31 @@
+{
+  "name": "mf-app-01",
+  "version": "1.0.2",
+  "main": "dist/remoteEntry.js",
+  "license": "MIT",
+  "keywords": [
+    "module-federation",
+    "example"
+  ],
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.3",
+    "@babel/preset-react": "^7.13.13",
+    "babel-loader": "^8.2.2",
+    "html-webpack-plugin": "^5.3.1",
+    "universal-module-federation-plugin": "^0.4.11",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^4.0.0"
+  }
+}

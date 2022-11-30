@@ -28,7 +28,6 @@ module.exports = function (interceptDeps, cb) {
   })
   eventBus.on("interceptDep", function(url) {
     if (isInterceptAll) {
-      console.log(12339, url)
       return url.replace("https://module-federation.virtual.com/$intercept/", "")
     }
     return interceptUrlDepMap[url]
