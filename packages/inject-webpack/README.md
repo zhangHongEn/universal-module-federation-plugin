@@ -16,13 +16,6 @@ module.exports = {
         b
     },
     plugins: [
-        new ModuleFederation({
-          filename: "remoteEntry.js",
-          exposes: {
-            "App": "src/App",
-            "Button": "src/Button"
-          },
-        }),
         new Inject(() => {
             return `console.log("inject code1")`
         }, {
@@ -32,13 +25,6 @@ module.exports = {
             // default value is ["entry", "remoteEntry"]
             scopes: ["entry", "remoteEntry", "exposesEntry"]
         }),
-        new class CustomPlugin {
-            apply(compiler) {
-                new Inject(() => {
-                  return `console.log("inject code2")`
-                }).apply(compiler)
-            }
-        }(),
     ]
 }
 ```

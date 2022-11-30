@@ -5,10 +5,11 @@ const injectLoader = require('./utils/injectLoader');
 const entryInjectLoaderPath = require.resolve("./entry-inject-loader")
 const VirtualPlugin = require("webpack-virtual-modules")
 const ImportDependency = require("webpack/lib/dependencies/ImportDependency")
+const {Module} = require("webpack")
 const { RawSource } = require('webpack-sources');
 const Template = require("webpack/lib/Template")
 const ContainerEntryModule = require("webpack/lib/container/ContainerEntryModule")
-const path = require("path")
+const path = require("path");
 const PLUGIN_NAME = 'InjectPlugin';
 
 let injectId = 0
@@ -97,11 +98,21 @@ class InjectPlugin {
 
   injectRemoteEntry(compilation) {
     const containerEntryModules = []
-    compilation.hooks.buildModule.tap(PLUGIN_NAME, module => {
-      if (module instanceof ContainerEntryModule) {
-        // module.addDependency(new ImportDependency(this.virtualSemverPath, [0, 0], null))
-        containerEntryModules.push(module)
-      }
+    let injectModule
+    compilation.hooks.optimizeChunks.tap(PLUGIN_NAME, chunks => {
+      chunks.forEach(chunk => {
+        chunk.getModules().forEach(module => {
+          if ((module.request || "").indexOf(`$_injectPlugin_${this.injectId}.js`) > -1) {
+            injectModule = module
+          }
+          if (module instanceof ContainerEntryModule) {
+            // 将injectModule注入remoteEntry所在的chunk
+            chunk.addModule(injectModule)
+            // 记录ContainerEntryModule, 在afterCodeGeneration注入require injectModule代码
+            containerEntryModules.push(module)
+          }  
+        })
+      })
     });
 
     compilation.hooks.afterCodeGeneration.tap(PLUGIN_NAME, () => {
@@ -112,7 +123,7 @@ class InjectPlugin {
               'javascript',
               new RawSource(
                 Template.asString([
-                  `__webpack_require__("./$_injectPlugin_${this.injectId}.js")`,
+                  `__webpack_require__("${injectModule.id}")`,
                   rawSource.source()
                 ])
               )

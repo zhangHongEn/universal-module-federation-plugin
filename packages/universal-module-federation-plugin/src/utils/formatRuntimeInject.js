@@ -1,4 +1,7 @@
 module.exports = function formatRuntimeInject(runtimeInject = {}) {
+  if (typeof runtimeInject === "function") {
+    runtimeInject = runtimeInject(this)
+  }
   ["initial", "beforeImport", "resolvePath", "resolveRequest", "import"].forEach(key => {
     if (!runtimeInject[key]) {
       runtimeInject[key] = []

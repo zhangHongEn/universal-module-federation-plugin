@@ -13,9 +13,8 @@ class UniversalModuleFederationPlugin {
     options = Object.assign({
       includeRemotes: [],
       excludeRemotes: [],
-      runtimeInject: {}
+      runtimeInject: {},
     }, options)
-    options.runtimeInject = formatRuntimeInject(options.runtimeInject)
     this.options = options
     this.appName = ""
     this.hookIndex = ++hookIndex
@@ -30,6 +29,7 @@ class UniversalModuleFederationPlugin {
     this.containerRemoteKeyMap = this.getContainerRemoteKeyMap(this.mfOptions.remotes)
     this.remoteMap = this.getRemoteMap(this.mfOptions.remotes)
     this.appName = this.mfOptions.name
+    options.runtimeInject = this.formatRuntimeInject(options.runtimeInject)
     let injectCode = `
     window.__umfplugin__ = Object.assign({
       semverhook: {
@@ -208,18 +208,16 @@ class UniversalModuleFederationPlugin {
 
   interceptFetchRemotesWebpack5(compiler) {
     compiler.hooks.make.tap(PLUGIN_NAME, compilation => {
-      const {ExternalModule} = require("webpack")
       const scriptExternalModules = [];
 
       compilation.hooks.buildModule.tap(PLUGIN_NAME, module => {
-          if (module instanceof ExternalModule) {
+          if (module.constructor.name === "ExternalModule" && module.externalType === this.mfOptions.library ? this.mfOptions.library.type : "script") {
               scriptExternalModules.push(module);
           }
       });
 
       compilation.hooks.afterCodeGeneration.tap(PLUGIN_NAME, () => {
           scriptExternalModules.map(module => {
-            // console.log(1111, module)
               const request = (module.request || "")
               const url = request.split("@").slice(1).join("@")
               const name = request.split("@")[0]
@@ -243,7 +241,22 @@ class UniversalModuleFederationPlugin {
               );
           });
       });
-  });
+    });
+  }
+
+  formatRuntimeInject(runtimeInject = {}) {
+    if (typeof runtimeInject === "function") {
+      runtimeInject = runtimeInject(mfOptions, this)
+    }
+    ["initial", "beforeImport", "resolvePath", "resolveRequest", "import"].forEach(key => {
+      if (!runtimeInject[key]) {
+        runtimeInject[key] = []
+      }
+      if (!(runtimeInject[key] instanceof Array)) {
+        runtimeInject[key] = [runtimeInject[key]]
+      } 
+    })
+    return runtimeInject
   }
 
 }
