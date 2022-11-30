@@ -15,10 +15,10 @@
 ## 目录
 
 * umd federation
-    * [UmdPlugin examles](#UmdPlugin示例)
+    * [UmdPlugin示例](#UmdPlugin示例)
     * [UmdPlugin API](#UmdPlugin-API)
 * UniversalModuleFederation
-    * [dynamic remotes](#dynamic-remotes)
+    * [动态远程url示例](#动态远程url示例)
     * [UniversalModuleFederationPlugin 示例](#UniversalModuleFederationPlugin-示例)
     * [UniversalModuleFederationPlugin API](#UniversalModuleFederationPlugin-API)
     * [运行时获取module-federation配置](#运行时获取module-federation配置)
@@ -181,7 +181,7 @@ plugins: [
 | -                                                                    | -                                                                                                                    | -                                          |
 
 
-## dynamic remotes
+## 动态远程url示例
 
 保持module-federation原本用法, 仅仅使用动态远程能力
 
