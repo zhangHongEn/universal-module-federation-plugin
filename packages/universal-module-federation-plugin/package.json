@@ -12,7 +12,7 @@
   "devDependencies": {},
   "dependencies": {
     "semverhook": "^1.2.0",
-    "inject-webpack": "^0.3.2",
+    "inject-webpack": "^0.4.0",
     "webpack-virtual-modules": "^0.4.6",
     "umfjs": "^0.3.2",
     "stringify-has-fn": "^1.0.2"
