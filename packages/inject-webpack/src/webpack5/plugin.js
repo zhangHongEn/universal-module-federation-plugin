@@ -5,12 +5,21 @@ const injectLoader = require('./utils/injectLoader');
 const entryInjectLoaderPath = require.resolve("./entry-inject-loader")
 const VirtualPlugin = require("webpack-virtual-modules")
 const ImportDependency = require("webpack/lib/dependencies/ImportDependency")
-const {Module} = require("webpack")
-const { RawSource } = require('webpack-sources');
-const Template = require("webpack/lib/Template")
 const ContainerEntryModule = require("webpack/lib/container/ContainerEntryModule")
+const {RawSource} = require("webpack-sources")
+const {Template} = require("webpack")
 const path = require("path");
 const PLUGIN_NAME = 'InjectPlugin';
+
+const ori = ContainerEntryModule.prototype.build
+ContainerEntryModule.prototype.build = function (options, compilation, resolver, fs, callback) {
+  return ori.call(this, options, compilation, resolver, fs, () => {
+    (this.$_injectWebpack_addDeps || []).forEach(dep => {
+      this.addDependency(dep)
+    })
+    callback()
+  })
+}
 
 let injectId = 0
 
@@ -41,8 +50,7 @@ class InjectPlugin {
     const scopes = this.options.scopes
     const hasExposes = scopes.indexOf("exposesEntry") > -1
     const hasRemoteEntry = scopes.indexOf("remoteEntry") > -1
-    // 注入remoteEntry需要依赖先将module注入到entry, 所以如果注入remoteEntry, 也会自动注入进到entry
-    const hasEntry = scopes.indexOf("entry") > -1 || hasRemoteEntry
+    const hasEntry = scopes.indexOf("entry") > -1
     if (hasEntry || hasExposes) {
       injectMap[this.injectId + "__code"] = `;require(${JSON.stringify(this.virtualSemverPath)});`
 
@@ -99,39 +107,48 @@ class InjectPlugin {
 
   injectRemoteEntry(compilation) {
     const containerEntryModules = []
-    let injectModule
-    compilation.hooks.optimizeChunks.tap(PLUGIN_NAME, chunks => {
-      chunks.forEach(chunk => {
-        chunk.getModules().forEach(module => {
-          if ((module.request || "").indexOf(`$_injectPlugin_${this.injectId}.js`) > -1) {
-            injectModule = module
-          }
-          if (module instanceof ContainerEntryModule) {
-            // 将injectModule注入remoteEntry所在的chunk
-            chunk.addModule(injectModule)
-            // 记录ContainerEntryModule, 在afterCodeGeneration注入require injectModule代码
-            containerEntryModules.push(module)
-          }  
-        })
-      })
+    compilation.hooks.buildModule.tap(PLUGIN_NAME, module => {
+      if (module instanceof ContainerEntryModule) {
+        containerEntryModules.push(module)
+        module.$_injectWebpack_addDeps = module.$_injectWebpack_addDeps || []
+        module.$_injectWebpack_addDeps.push(new ImportDependency(this.virtualSemverPath))
+      }
     });
 
     compilation.hooks.afterCodeGeneration.tap(PLUGIN_NAME, () => {
       containerEntryModules.forEach(module => {
         const sourceMap = compilation.codeGenerationResults.get(module).sources;
-          const rawSource = sourceMap.get('javascript');
-          sourceMap.set(
-              'javascript',
-              new RawSource(
-                Template.asString([
-                  `__webpack_require__("${injectModule.id}")`,
-                  rawSource.source()
-                ])
-              )
-          );
+        const rawSource = sourceMap.get('javascript');
+        const modules = module.$_injectWebpack_addDeps.map(dependency => {
+          const dep = /** @type {ContainerExposedDependency} */ (dependency);
+          return {
+            // name: dep.exposedName,
+            module: compilation.moduleGraph.getModule(dep),
+            request: compilation.moduleGraph.getModule(dep).userRequest
+          };
+        });
+        const requireStr = modules
+          .map(({ module, request }) =>
+          compilation.runtimeTemplate.moduleRaw({
+              module,
+              chunkGraph: compilation.chunkGraph,
+              request,
+              weak: false,
+              runtimeRequirements: new Set()
+            })
+          )
+          .join(", ")
+        sourceMap.set(
+            'javascript',
+            new RawSource(
+              Template.asString([
+                requireStr,
+                rawSource.source()
+              ])
+            )
+        );
       })
     })
-
   }
 }
 
