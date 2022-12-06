@@ -39,8 +39,6 @@ module.exports = {
           filename: 'remoteEntry.js',
           remotes: {
             app2: "app2@http://localhost:9002/remoteEntry.js",
-            "react-router": "app4reactRouter@https://unpkg.com/react-router@6.4.3/dist/umd/react-router.production.min.js",
-            "@remix-run/router": "app5remixRouter@https://unpkg.com/@remix-run/router@1.0.3/dist/router.umd.min.js"
           },
           exposes: {
             './App': './src/App',
@@ -49,9 +47,9 @@ module.exports = {
         }),
         new UmdPlugin({
           // The matched remotes are loaded in umd mode
-          includeRemotes: [/react-router/, "@remix-run/router"],
-          dependencies: {
-            automatic: ["shareScopes", "remotes"],
+          remotes: {
+            "react-router": "app4reactRouter@https://unpkg.com/react-router@6.4.3/dist/umd/react-router.production.min.js",
+            "@remix-run/router": "app5remixRouter@https://unpkg.com/@remix-run/router@1.0.3/dist/router.umd.min.js"
           }
         }),
         new UmdPlugin({
@@ -66,8 +64,7 @@ module.exports = {
 
 | options                       | desc                                                                                      | interface                                      | default                           | examles                                           |
 |-------------------------------|-------------------------------------------------------------------------------------------|:-----------------------------------------------|-----------------------------------|:--------------------------------------------------|
-| includeRemotes                | match umd remotes                                                                         | Array<RegExp \| string>                        | string>                           | string>                                           |
-| excludeRemotes                | exclude umd remotes                                                                       | Array<RegExp \| string>                        | string>                           | string>                                           |
+| remotes                       | umd remotes                                                                               | { remoteKey: "{global}@{url}" }                | {}                                | string>                                           |
 | dependencies.automatic        | Automatically match dependencies with the same name in remotes and shared                 | enum array                                     | ["shareScopes", "remotes"]        |                                                   |
 | dependencies.referenceShares  | umd dependencies use by shares                                                            | refer to __*shared*__ config                   | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
 | dependencies.referenceRemotes | umd dependencies use by remotes                                                           | Map<string, string>                            | {}                                | {react: "app5"}                                   |
@@ -100,12 +97,10 @@ const {UniversalModuleFederationPlugin} = require("universal-module-federation-p
 
 plugins: [
     new UniversalModuleFederationPlugin({
-      includeRemotes: [/.*/],
-      excludeRemotes: [],
+      remotes: {},
       runtimeInject: {
         injectVars: {},
         initial: () => {},
-        beforeImport(url, options) {},
         import(url, options) {}
       }
     })
@@ -117,8 +112,7 @@ plugins: [
 // webpack.config.js
 plugins: [
     new UniversalModuleFederationPlugin({
-      includeRemotes: [/.*/],
-      excludeRemotes: [],
+      remotes: { app2: "app2@http://xxx.js" },
       runtimeInject: {
         // You can access "__umf__.$injectVars.testInjectVar" in any of the following runtime hooks
         injectVars: {
@@ -160,14 +154,13 @@ plugins: [
 
 ## UniversalModuleFederationPlugin API
 
-| options                                      | desc                                                                                           | default | examles             |
-|----------------------------------------------|------------------------------------------------------------------------------------------------|---------|:--------------------|
-| includeRemotes                               | match umf remotes                                                                              | []      | [/umf-app/, "app3"] |
-| excludeRemotes                               | exclude umf remotes                                                                            | []      | ["app2"]            |
-| runtimeInject.injectVars                     | Inject variables for other runtime hooks, any runtime hook can using "\_\_umf\_\_.$injectVars" | {}      | {test: 123}         |
-| runtimeInject.initial():promise                      | initial runtime hooks                                                                          | []      |                     |
-| runtimeInject.beforeImport(url, options):promise<url> | Triggered before each remote is introduced                                                     | []      |                     |
-| runtimeInject.import(url, options):promise<module>    | Introduce the hook of remote, need to return a container{init, get}                            | []      |                     |
+| options                                               | desc                                                                                           | default                          | examles                    |
+|-------------------------------------------------------|------------------------------------------------------------------------------------------------|----------------------------------|:---------------------------|
+| remotes                                               | umf remotes                                                                                    | { remoteKey: "{global}@{url}" }  | {app2: "app@http://xx.js"} |
+| runtimeInject.injectVars                              | Inject variables for other runtime hooks, any runtime hook can using "\_\_umf\_\_.$injectVars" | {}                               | {test: 123}                |
+| runtimeInject.initial():promise                       | initial runtime hooks                                                                          | []                               |                            |
+| runtimeInject.beforeImport(url, options):promise<url> | Triggered before each remote is introduced                                                     | []                               |                            |
+| runtimeInject.import(url, options):promise<module>    | Introduce the hook of remote, need to return a container{init, get}                            | []                               |                            |
 
 #### \_\_umf\_\_
 
@@ -195,17 +188,15 @@ const {UniversalModuleFederationPlugin} = require("universal-module-federation-p
 module.exports = {
     plugins: [
         new ModuleFederationPlugin({
-          // ...,
+          shared: { react: { singleton: true } },
+        }),
+        new UniversalModuleFederationPlugin({
           remotes: {
             // 1: {name}@{url}
             // 2: {name}@{dynamic semver remote}
             app2: "app2@http://localhost:3000/remoteEntry.js",
             "mf-app-01": "mfapp01@mf-app-01@1.0.2/dist/remoteEntry.js"
           },
-          shared: { react: { singleton: true } },
-        }),
-        new UniversalModuleFederationPlugin({
-          includeRemotes: [/./],
           runtimeInject: {
             resolvePath({name, version, entry, query}) {
               return `https://cdn.jsdelivr.net/npm/${name}@${version}/${entry}?${query}`

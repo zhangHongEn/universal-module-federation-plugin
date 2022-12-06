@@ -38,8 +38,6 @@ module.exports = {
           filename: 'remoteEntry.js',
           remotes: {
             app2: "app2@http://localhost:9002/remoteEntry.js",
-            "react-router": "app4reactRouter@https://unpkg.com/react-router@6.4.3/dist/umd/react-router.production.min.js",
-            "@remix-run/router": "app5remixRouter@https://unpkg.com/@remix-run/router@1.0.3/dist/router.umd.min.js"
           },
           exposes: {
             './App': './src/App',
@@ -48,7 +46,10 @@ module.exports = {
         }),
         new UmdPlugin({
           // 匹配的remote以umd模式加载
-          includeRemotes: [/react-router/, "@remix-run/router"],
+          remotes: {
+            "react-router": "app4reactRouter@https://unpkg.com/react-router@6.4.3/dist/umd/react-router.production.min.js",
+            "@remix-run/router": "app5remixRouter@https://unpkg.com/@remix-run/router@1.0.3/dist/router.umd.min.js"
+          },
           dependencies: {
             automatic: ["shareScopes", "remotes"],
           }
@@ -65,10 +66,9 @@ module.exports = {
 
 | options                       | desc                                       | default                           | examles                                           |
 |-------------------------------|--------------------------------------------|-----------------------------------|:--------------------------------------------------|
-| includeRemotes                | 匹配 umd remote                            | []                                | [/umd-app/, "app3"]                               |
-| excludeRemotes                | 排除 umd remotes                           | []                                | ["app2"]                                          |
+| remotes                       | umd remotes                                | {}                                | {app2: "app@http://xxx.js"}                       |
 | dependencies.automatic        | 自动匹配remotes和shared中同名的依赖项      | ["shareScopes", "remotes"]        |                                                   |
-| dependencies.referenceShares  | 配置从 __*shared*__ 中寻找umd的依赖                | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
+| dependencies.referenceShares  | 配置从 __*shared*__ 中寻找umd的依赖        | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
 | dependencies.referenceRemotes | 配置从remotes中寻找umd的依赖               | {}                                | {react: "app5"}                                   |
 | runtimeUmdExposes             | 如果umd包有多个入口，可以用这个函数解析入口 | ({$umdValue}) => return $umdValue |                                                   |
 | runtimeInject                 | 同 __*UniversalModuleFederationPlugin*__   |                                   |                                                   |
@@ -98,8 +98,7 @@ const {UniversalModuleFederationPlugin} = require("universal-module-federation-p
 
 plugins: [
     new UniversalModuleFederationPlugin({
-      includeRemotes: [/.*/],
-      excludeRemotes: [],
+      remotes: {},
       runtimeInject: {
         injectVars: {},
         initial: () => {},
@@ -115,8 +114,7 @@ plugins: [
 // webpack.config.js
 plugins: [
     new UniversalModuleFederationPlugin({
-      includeRemotes: [/.*/],
-      excludeRemotes: [],
+      remotes: {},
       runtimeInject: {
         // 可以在以下任何runtime hooks中访问"__umf__.$injectVars.testInjectVar"
         injectVars: {
@@ -158,14 +156,13 @@ plugins: [
 
 ## UniversalModuleFederationPlugin API
 
-| options                                      | desc                                                                                       | default      | examles             |
-|----------------------------------------------|--------------------------------------------------------------------------------------------|--------------|:--------------------|
-| includeRemotes                               | 匹配 umf remotes                                                                          | []           | [/umf-app/, "app3"] |
-| excludeRemotes                               | 排除 umf remotes                                                                        | []           | ["app2"]            |
-| runtimeInject.injectVars                     | 为runtime hooks注入变量，任何运行时挂钩都可以使用"\_\_umf\_\_.$injectVars"访问 | {}           | {test: 123}         |
-| runtimeInject.initial():promise                      | 初始化阶段的runtime hook                                                                      | function(){} |                     |
-| runtimeInject.beforeImport(url, options):promise<url> | 准备引入remote时触发 | function(){} |                     |
-| runtimeInject.import(url, options):promise<module>    | remote的引入钩子, 需要返回一个 container{init, get}                        | function(){} |                     
+| options                                               | desc                                                                          | default      | examles                     |
+|-------------------------------------------------------|-------------------------------------------------------------------------------|--------------|:----------------------------|
+| remotes                                               | umf remotes                                                                   | {}           | {app2: "app@http://xxx.js"} |
+| runtimeInject.injectVars                              | 为runtime hooks注入变量，任何运行时挂钩都可以使用"\_\_umf\_\_.$injectVars"访问 | {}           | {test: 123}                 |
+| runtimeInject.initial():promise                       | 初始化阶段的runtime hook                                                      | function(){} |                             |
+| runtimeInject.beforeImport(url, options):promise<url> | 准备引入remote时触发                                                          | function(){} |                             |
+| runtimeInject.import(url, options):promise<module>    | remote的引入钩子, 需要返回一个 container{init, get}                            | function(){} |                             |
 
 #### \_\_umf\_\_
 
@@ -192,17 +189,15 @@ const {UniversalModuleFederationPlugin} = require("universal-module-federation-p
 module.exports = {
     plugins: [
         new ModuleFederationPlugin({
-          // ...,
+          shared: { react: { singleton: true } },
+        }),
+        new UniversalModuleFederationPlugin({
           remotes: {
             // 1: {name}@{url}
             // 2: {name}@{dynamic semver remote}
             app2: "app2@http://localhost:3000/remoteEntry.js",
             "mf-app-01": "mfapp01@mf-app-01@1.0.2/dist/remoteEntry.js"
           },
-          shared: { react: { singleton: true } },
-        }),
-        new UniversalModuleFederationPlugin({
-          includeRemotes: [/./],
           runtimeInject: {
             resolvePath({name, version, entry, query}) {
               return `https://cdn.jsdelivr.net/npm/${name}@${version}/${entry}?${query}`
