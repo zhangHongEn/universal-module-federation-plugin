@@ -5,14 +5,14 @@ const PLUGIN_NAME = 'UniversalModuleFederationPlugin';
 const getWebpackVersion = require("./utils/getWebpackVersion")
 const stringifyHasFn = require("stringify-has-fn")
 const formatRuntimeInject = require("./utils/formatRuntimeInject")
+const {ContainerReferencePlugin} = require("webpack").container
 
 let hookIndex = 0
 
 class UniversalModuleFederationPlugin {
   constructor(options = {}) {
     options = Object.assign({
-      includeRemotes: [],
-      excludeRemotes: [],
+      remotes: {},
       runtimeInject: {},
     }, options)
     this.options = options
@@ -131,9 +131,11 @@ class UniversalModuleFederationPlugin {
         return plugin.constructor.name === "ModuleFederationPlugin"
       }
     )[0]
+    if (!federationInstance) throw new Error("rely ModuleFederationPlugin")
     return federationInstance
   }
 
+  // TODO: merge remotes
   getContainerRemoteKeyMap(remotes = {}) {
     const map = {}
     Object.keys(remotes).forEach(key => {
@@ -147,6 +149,7 @@ class UniversalModuleFederationPlugin {
     return map
   }
 
+  // TODO: merge remotes
   getRemoteMap(remotes = {}) {
     const map = {}
     Object.keys(remotes).forEach(key => {
@@ -158,20 +161,6 @@ class UniversalModuleFederationPlugin {
     })
     return map
   }
-
-  matchRemotes(name = "") {
-    function match(patternOrStr, val) {
-      if (typeof patternOrStr === "string") {
-        return patternOrStr === val
-      }
-      return patternOrStr.test(val)
-    }
-    if (this.options.excludeRemotes.some(pattern => match(pattern, name))) {
-      return false
-    }
-    return this.options.includeRemotes.some(pattern => match(pattern, name))
-  }
-
 
   interceptFetchRemotesWebpack4(compiler) {
     const instance = this.getMfInstance(compiler.options.plugins)
@@ -193,43 +182,30 @@ class UniversalModuleFederationPlugin {
   }
 
   interceptFetchRemotesWebpack5(compiler) {
-    compiler.hooks.make.tap(PLUGIN_NAME, compilation => {
-      const scriptExternalModules = [];
-
-      compilation.hooks.buildModule.tap(PLUGIN_NAME, module => {
-          if (module.constructor.name === "ExternalModule" && module.externalType === this.mfOptions.library ? this.mfOptions.library.type : "script") {
-              scriptExternalModules.push(module);
-          }
-      });
-
-      compilation.hooks.afterCodeGeneration.tap(PLUGIN_NAME, () => {
-          scriptExternalModules.map(module => {
-              const request = (module.request || "")
-              const url = request.split("@").slice(1).join("@")
-              const name = request.split("@")[0]
-              const remoteKey = this.containerRemoteKeyMap[name]
-              if (!this.matchRemotes(remoteKey)) {
-                return
-              }
-              const sourceMap = compilation.codeGenerationResults.get(module).sources;
-              const rawSource = sourceMap.get('javascript');
-              sourceMap.set(
-                  'javascript',
-                  new RawSource(
-                    `
-                    var _global = typeof self === "undefined" ? global : self
-                    var containerImportMap = _global.__umfplugin__.containerImportMap
-                    module.exports = containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"].import("${url}", {name: "${name}", remoteKey: "${remoteKey}"}))
-                      .then(function(container) {
-                        _global["${name}"] = container
-                        return container
-                      })
-                    `
-                  )
-              );
-          });
-      });
-    });
+    const mfOptions = this.mfOptions
+    const options = this.options
+    const remoteModuleMap = {}
+    Object.keys(options.remotes).forEach(remoteKey => {
+      const request = options.remotes[remoteKey]
+      const url = request.split("@").slice(1).join("@")
+      const name = request.split("@")[0]
+      remoteModuleMap[remoteKey] = `
+      function(){
+        var _global = typeof self === "undefined" ? global : self
+        var containerImportMap = _global.__umfplugin__.containerImportMap
+        return containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"].import("${url}", {name: "${name}", remoteKey: "${remoteKey}"}))
+          .then(function(container) {
+            _global["${name}"] = container
+            return container
+          })
+      }()
+      `
+    })
+    new ContainerReferencePlugin({
+      remoteType: "var",
+      shareScope: mfOptions.shareScope,
+      remotes: remoteModuleMap
+    }).apply(compiler)
   }
 
   formatRuntimeInject(runtimeInject = {}) {

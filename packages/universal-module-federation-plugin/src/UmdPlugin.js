@@ -6,8 +6,7 @@ const UniversalModuleFederationPlugin = require("./UniversalModuleFederationPlug
 class UmdPlugin {
   constructor(options = {}) {
     options = Object.assign({
-      includeRemotes: [],
-      excludeRemotes: [],
+      remotes: {},
       dependencies: {
         // referenceShares: {
         //   react: {
@@ -40,8 +39,7 @@ class UmdPlugin {
 
   apply(compiler) {
     new UniversalModuleFederationPlugin({
-      includeRemotes: this.options.includeRemotes,
-      excludeRemotes: this.options.excludeRemotes,
+      remotes: this.options.remotes,
       runtimeInject: {
         injectVars: Object.assign({
           referenceShares: this.options.dependencies.referenceShares,
