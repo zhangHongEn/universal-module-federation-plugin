@@ -70,9 +70,11 @@ class UniversalModuleFederationPlugin {
         async function $getRemote(request = "") {
           const containerName = Object.keys(__umf__.$containerRemoteKeyMap).filter(function(containerName) {
             const remoteKey = __umf__.$containerRemoteKeyMap[containerName]
-            return request.indexOf(remoteKey) === 0
+            const remoteKeyIndex = request.indexOf(remoteKey)
+            const moduleName = request.replace(remoteKey, "")
+            return remoteKeyIndex === 0 && (moduleName === "" || moduleName[0] === "/")
           })[0]
-          const moduleName = request.replace(__umf__.$containerRemoteKeyMap[containerName], "./")
+          const moduleName = request.replace(__umf__.$containerRemoteKeyMap[containerName], ".")
           if (!_global[containerName]) {
             throw new Error("container " + containerName + " not found")
           }
