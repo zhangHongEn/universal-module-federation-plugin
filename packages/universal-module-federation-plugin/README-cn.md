@@ -22,6 +22,7 @@
     * [UniversalModuleFederationPlugin 示例](#UniversalModuleFederationPlugin-示例)
     * [UniversalModuleFederationPlugin API](#UniversalModuleFederationPlugin-API)
     * [运行时获取module-federation配置](#运行时获取module-federation配置)
+    * [模块委托](#模块委托)
 
 ## UmdPlugin示例
 
@@ -50,9 +51,6 @@ module.exports = {
             "react-router": "app4reactRouter@https://unpkg.com/react-router@6.4.3/dist/umd/react-router.production.min.js",
             "@remix-run/router": "app5remixRouter@https://unpkg.com/@remix-run/router@1.0.3/dist/router.umd.min.js"
           },
-          dependencies: {
-            automatic: ["shareScopes", "remotes"],
-          }
         }),
         new UmdPlugin({
           // ...
@@ -64,25 +62,26 @@ module.exports = {
 
 ## UmdPlugin API
 
-| options                       | desc                                       | default                           | examles                                           |
-|-------------------------------|--------------------------------------------|-----------------------------------|:--------------------------------------------------|
-| remotes                       | umd remotes                                | {}                                | {app2: "app@http://xxx.js"}                       |
-| dependencies.automatic        | 自动匹配remotes和shared中同名的依赖项      | ["shareScopes", "remotes"]        |                                                   |
-| dependencies.referenceShares  | 配置从 __*shared*__ 中寻找umd的依赖        | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
-| dependencies.referenceRemotes | 配置从remotes中寻找umd的依赖               | {}                                | {react: "app5"}                                   |
-| runtimeUmdExposes             | 如果umd包有多个入口，可以用这个函数解析入口 | ({$umdValue}) => return $umdValue |                                                   |
-| runtimeInject                 | 同 __*UniversalModuleFederationPlugin*__   |                                   |                                                   |
+| options                       | desc                                     | default                    | examles                                           |
+|-------------------------------|------------------------------------------|----------------------------|:--------------------------------------------------|
+| remotes                       | umd remotes                              | {}                         | {app2: "app@http://xxx.js"}                       |
+| dependencies.automatic        | 自动匹配remotes和shared中同名的依赖项    | ["shareScopes", "remotes"] |                                                   |
+| dependencies.referenceShares  | 配置从 __*shared*__ 中寻找umd的依赖      | {}                         | {react: {singleton: true, requiredVersion: "17"}} |
+| dependencies.referenceRemotes | 配置从remotes中寻找umd的依赖             | {}                         | {react: "app5"}                                   |
+| runtime                       | 同 __*UniversalModuleFederationPlugin*__ |                            |                                                   |
 
-#### runtimeUmdExposes
+#### runtime.get
 ``` js
-// $umdValue: umd模块的返回值
-// $moduleName: "./App" <=== import "umdRemote/App"
-runtimeUmdExposes({ $umdValue, $moduleName }) {
-    $moduleName = $moduleName.replace(/^\.\/?/, "")
-    if ($moduleName) {
-      return $umdValue[$moduleName]
+// module: umd模块的返回值
+// request: "./App" <=== import "umdRemote/App"
+runtime: {
+    get({ module, request}) {
+        request = request.replace(/^\.\/?/, "")
+        if (request) {
+          return module[request]
+        }
+        return module
     }
-    return $umdValue
 }
 ```
 
@@ -99,11 +98,10 @@ const {UniversalModuleFederationPlugin} = require("universal-module-federation-p
 plugins: [
     new UniversalModuleFederationPlugin({
       remotes: {},
-      runtimeInject: {
+      runtime: {
         injectVars: {},
-        initial: () => {},
-        beforeImport(url, options) {},
-        import(url, options) {}
+        initial: ({__umf__}) => {},
+        import({url, name, remoteKey, __umf__}) {}
       }
     })
 ]
@@ -115,18 +113,18 @@ plugins: [
 plugins: [
     new UniversalModuleFederationPlugin({
       remotes: {},
-      runtimeInject: {
-        // 可以在以下任何runtime hooks中访问"__umf__.$injectVars.testInjectVar"
+      runtime: {
+        // 可以在以下任何runtime hooks中访问"__umf__.injectVars.testInjectVar"
         injectVars: {
           testInjectVar: 111,
         },
         // 任意runtime hooks都会注入"__umf__"这个变量
-        initial: async () => {
-          const {$getShare, $getRemote, $containerRemoteKeyMap, $injectVars, $context} = __umf__
-          const testInjectVar = $injectVars
+        initial: async ({__umf__}) => {
+          const {getShare, getRemote, containerRemoteKeyMap, injectVars, context} = __umf__
+          const testInjectVar = injectVars
           console.log("__umf__", __umf__, testInjectVar)
-          // $context is an empty object by default, used to pass values between multiple hooks
-          $context.testA = "testA"
+          // context is an empty object by default, used to pass values between multiple hooks
+          context.testA = "testA"
           await new Promise(resolve => {
             setTimeout(function () {
               resolve()
@@ -136,7 +134,7 @@ plugins: [
         // remoteA: "a@http://remoteA.com"
         // name: "a"
         // remoteKey: "remoteA"
-        import(url, {name, remoteKey}) {
+        import({url, name, remoteKey, __umf__}) {
           console.log("__umf__", __umf__)
           return {
             init(){},
@@ -156,26 +154,25 @@ plugins: [
 
 ## UniversalModuleFederationPlugin API
 
-| options                                               | desc                                                                          | default      | examles                     |
-|-------------------------------------------------------|-------------------------------------------------------------------------------|--------------|:----------------------------|
-| remotes                                               | umf remotes                                                                   | {}           | {app2: "app@http://xxx.js"} |
-| runtimeInject.injectVars                              | 为runtime hooks注入变量，任何运行时挂钩都可以使用"\_\_umf\_\_.$injectVars"访问 | {}           | {test: 123}                 |
-| runtimeInject.initial():promise                       | 初始化阶段的runtime hook                                                      | function(){} |                             |
-| runtimeInject.beforeImport(url, options):promise<url> | 准备引入remote时触发                                                          | function(){} |                             |
-| runtimeInject.import(url, options):promise<module>    | remote的引入钩子, 需要返回一个 container{init, get}                            | function(){} |                             |
+| options                                                      | desc                                                                          | default      | examles                     |
+|--------------------------------------------------------------|-------------------------------------------------------------------------------|--------------|:----------------------------|
+| remotes                                                      | umf remotes                                                                   | {}           | {app2: "app@http://xxx.js"} |
+| runtime.injectVars                                           | 为runtime hooks注入变量，任何运行时挂钩都可以使用"\_\_umf\_\_.$injectVars"访问 | {}           | {test: 123}                 |
+| runtime.initial():promise                                    | 初始化阶段的runtime hook                                                      | function(){} |                             |
+| runtime.import({url, name, remoteKey}):promise<module> | remote的引入钩子, 需要返回一个 container{init, get}                            | function(){} |                             |
 
 #### \_\_umf\_\_
 
 任何运行时挂钩都会注入"\_\_umf\_\_"变量
 
-| property                                                             | desc                                                                                                                 | examles                                    |
-|----------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
-| $getRemote("request"):promise<module>                                | 用于获取远程模块, 与from处语法一致: import xxx from "xxxx/xxx"                                                         | $getRemote("app2/App")                     |
-| $getShare(pkgname: string, {singleton, requiredVersion, ......}):promise<module> | 用于获取share, 第二个参数与shared.xxx配置一致                                                         | $getShare("react", {singleton: true})      |
-| $containerRemoteKeyMap: object                                       | 如果配置了 remotes: {"@app2/xx": "app3@http://xxx"}  | 则可以这么获取remotes的映射: $containerRemoteKeyMap.app3 --> "@app2/xx" |
-| $injectVars: object                                                  | 插件配置的注入运行时的变量                                                                                        |                                            |
-| $context: object                                                     | $context 默认为空对象，用于多个hook之间传递值                                   | $context.xxx = xxx                         |
-| -                                                                    | -                                                                                                                    | -                                          |
+| property                                                                        | desc                                                          | examles                                                                |
+|---------------------------------------------------------------------------------|---------------------------------------------------------------|------------------------------------------------------------------------|
+| getRemote("request"):promise<module>                                            | 用于获取远程模块, 与from处语法一致: import xxx from "xxxx/xxx" | getRemote("app2/App")                                                  |
+| getShare(pkgname: string, {singleton, requiredVersion, ......}):promise<module> | 用于获取share, 第二个参数与shared.xxx配置一致                  | getShare("react", {singleton: true})                                   |
+| containerRemoteKeyMap: object                                                   | 如果配置了 remotes: {"@app2/xx": "app3@http://xxx"}           | 则可以这么获取remotes的映射: containerRemoteKeyMap.app3 --> "@app2/xx" |
+| injectVars: object                                                              | 插件配置的注入运行时的变量                                    |                                                                        |
+| context: object                                                                 | $context 默认为空对象，用于多个hook之间传递值                  | context.xxx = xxx                                                      |
+| -                                                                               | -                                                             | -                                                                      |
 
 
 ## 动态远程url示例
@@ -198,11 +195,11 @@ module.exports = {
             app2: "app2@http://localhost:3000/remoteEntry.js",
             "mf-app-01": "mfapp01@mf-app-01@1.0.2/dist/remoteEntry.js"
           },
-          runtimeInject: {
+          runtime: {
             resolvePath({name, version, entry, query}) {
               return `https://cdn.jsdelivr.net/npm/${name}@${version}/${entry}?${query}`
             },
-            async import(url, {name}) {
+            async import({url, name}) {
               await new Promise(resolve => {
                 __webpack_require__.l(url, resolve)
               })
@@ -216,7 +213,7 @@ module.exports = {
 
 ## 运行时获取module-federation配置
 
-"runtimeInject" 可以设置为 function
+"runtime" 可以设置为 function
 
 ``` js
 // webpack.config.js
@@ -225,15 +222,57 @@ const {UniversalModuleFederationPlugin} = require("universal-module-federation-p
 module.exports = {
     plugins: [
         new UniversalModuleFederationPlugin({
-          runtimeInject: (mfOptions) => ({
+          runtime: (umfInstance) => ({
             injectVars: {
-                mfOptions
+                mfOptions: umfInstance.mfOptions
             },
-            initial() {
+            initial({__umf__}) {
                 console.log("mfOptions", __umf__.$injectVars.mfOptions)
             }
           })
         }),
     ]
+}
+```
+
+## 模块委托
+``` js
+// webpack.config.js
+const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
+
+module.exports = {
+    plugins: [
+        new ModuleFederationPlugin({
+          shared: { react: { singleton: true } },
+        }),
+        new UniversalModuleFederationPlugin({
+          remotes: {
+            "mf-app-01": "mfapp01@https://cdn.jsdelivr.net/npm/mf-app-01/dist/remoteEntry.js",
+          },
+          runtime: "./src/remote-delegate.js"
+        }),
+    ]
+}
+```
+``` js
+// src/remote-delegate.js
+console.log("initial")
+module.exports.import = function ({url, name, remoteKey, __umf__}) {
+  return new Promise((resolve, reject) => {
+    const global = name
+    const __webpack_error__ = new Error()
+    __webpack_require__.l(
+      url,
+      function (event) {
+        if (typeof window[global] !== 'undefined') return resolve(window[global]);
+        var realSrc = event && event.target && event.target.src;
+        __webpack_error__.message = 'Loading script failed.\\n(' + event.message + ': ' + realSrc + ')';
+        __webpack_error__.name = 'ScriptExternalLoadError';
+        __webpack_error__.stack = event.stack;
+        reject(__webpack_error__);
+      },
+      global,
+    );
+  })
 }
 ```

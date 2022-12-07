@@ -23,6 +23,7 @@ Allows you to control all the processes of each dependency by yourself
     * [UniversalModuleFederationPlugin examles](#UniversalModuleFederationPlugin-examles)
     * [UniversalModuleFederationPlugin API](#UniversalModuleFederationPlugin-API)
     * [Get module-federation configuration at runtime](#Get-module-federation-configuration-at-runtime)
+    * [delegate modules](#delegate-modules)
 
 ## UmdPlugin examles
 
@@ -62,25 +63,26 @@ module.exports = {
 
 ## UmdPlugin API
 
-| options                       | desc                                                                                      | interface                                      | default                           | examles                                           |
-|-------------------------------|-------------------------------------------------------------------------------------------|:-----------------------------------------------|-----------------------------------|:--------------------------------------------------|
-| remotes                       | umd remotes                                                                               | { remoteKey: "{global}@{url}" }                | {}                                | string>                                           |
-| dependencies.automatic        | Automatically match dependencies with the same name in remotes and shared                 | enum array                                     | ["shareScopes", "remotes"]        |                                                   |
-| dependencies.referenceShares  | umd dependencies use by shares                                                            | refer to __*shared*__ config                   | {}                                | {react: {singleton: true, requiredVersion: "17"}} |
-| dependencies.referenceRemotes | umd dependencies use by remotes                                                           | Map<string, string>                            | {}                                | {react: "app5"}                                   |
-| runtimeUmdExposes             | If the umd package has multiple entries, you can use this function to resolve the entries | function({$moduleValue, $moduleName}): any     | ({$umdValue}) => return $umdValue |                                                   |
-| runtimeInject                 | inject code                                                                               | refer to __*UniversalModuleFederationPlugin*__ |                                   |                                                   |
+| options                       | desc                                                                      | interface                                      | default                    | examles                                           |
+|-------------------------------|---------------------------------------------------------------------------|:-----------------------------------------------|----------------------------|:--------------------------------------------------|
+| remotes                       | umd remotes                                                               | { remoteKey: "{global}@{url}" }                | {}                         | string>                                           |
+| dependencies.automatic        | Automatically match dependencies with the same name in remotes and shared | enum array                                     | ["shareScopes", "remotes"] |                                                   |
+| dependencies.referenceShares  | umd dependencies use by shares                                            | refer to __*shared*__ config                   | {}                         | {react: {singleton: true, requiredVersion: "17"}} |
+| dependencies.referenceRemotes | umd dependencies use by remotes                                           | Map<string, string>                            | {}                         | {react: "app5"}                                   |
+| runtime                       | runtime code                                                              | refer to __*UniversalModuleFederationPlugin*__ |                            |                                                   |
 
-#### runtimeUmdExposes
+#### runtime.get
 ``` js
-// $umdValue: Module object exposed by umd
-// $moduleName: "./App" <=== import "umdRemote/App"
-runtimeUmdExposes({ $umdValue, $moduleName }) {
-    $moduleName = $moduleName.replace(/^\.\/?/, "")
-    if ($moduleName) {
-      return $umdValue[$moduleName]
+// module: Module object exposed by umd
+// request: "./App" <=== import "umdRemote/App"
+runtime: {
+    get ({ module, request}) {
+        request = request.replace(/^\.\/?/, "")
+        if (request) {
+          return module[request]
+        }
+        return module
     }
-    return $umdValue
 }
 ```
 
@@ -98,10 +100,10 @@ const {UniversalModuleFederationPlugin} = require("universal-module-federation-p
 plugins: [
     new UniversalModuleFederationPlugin({
       remotes: {},
-      runtimeInject: {
+      runtime: {
         injectVars: {},
-        initial: () => {},
-        import(url, options) {}
+        initial: ({__umf__}) => {},
+        import({url, name, remoteKey, __umf__}) {}
       }
     })
 ]
@@ -113,18 +115,18 @@ plugins: [
 plugins: [
     new UniversalModuleFederationPlugin({
       remotes: { app2: "app2@http://xxx.js" },
-      runtimeInject: {
-        // You can access "__umf__.$injectVars.testInjectVar" in any of the following runtime hooks
+      runtime: {
+        // You can access "__umf__.injectVars.testInjectVar" in any of the following runtime hooks
         injectVars: {
           testInjectVar: 111,
         },
         // any runtime hook can using "__umf__"
-        initial: async () => {
-          const {$getShare, $getRemote, $containerRemoteKeyMap, $injectVars, $context} = __umf__
-          const testInjectVar = $injectVars
+        initial: async ({__umf__}) => {
+          const {getShare, getRemote, containerRemoteKeyMap, injectVars, context} = __umf__
+          const testInjectVar = injectVars
           console.log("__umf__", __umf__, testInjectVar)
-          // $context is an empty object by default, used to pass values between multiple hooks
-          $context.testA = "testA"
+          // context is an empty object by default, used to pass values between multiple hooks
+          context.testA = "testA"
           await new Promise(resolve => {
             setTimeout(function () {
               resolve()
@@ -134,7 +136,7 @@ plugins: [
         // remoteA: "a@http://remoteA.com"
         // name: "a"
         // remoteKey: "remoteA"
-        import(url, {name, remoteKey}) {
+        import({url, name, remoteKey, __umf__}) {
           console.log("__umf__", __umf__)
           return {
             init(){},
@@ -154,27 +156,26 @@ plugins: [
 
 ## UniversalModuleFederationPlugin API
 
-| options                                               | desc                                                                                           | default                          | examles                    |
-|-------------------------------------------------------|------------------------------------------------------------------------------------------------|----------------------------------|:---------------------------|
-| remotes                                               | umf remotes                                                                                    | { remoteKey: "{global}@{url}" }  | {app2: "app@http://xx.js"} |
-| runtimeInject.injectVars                              | Inject variables for other runtime hooks, any runtime hook can using "\_\_umf\_\_.$injectVars" | {}                               | {test: 123}                |
-| runtimeInject.initial():promise                       | initial runtime hooks                                                                          | []                               |                            |
-| runtimeInject.beforeImport(url, options):promise<url> | Triggered before each remote is introduced                                                     | []                               |                            |
-| runtimeInject.import(url, options):promise<module>    | Introduce the hook of remote, need to return a container{init, get}                            | []                               |                            |
+| options                                                | desc                                                                                           | default                         | examles                    |
+|--------------------------------------------------------|------------------------------------------------------------------------------------------------|---------------------------------|:---------------------------|
+| remotes                                                | umf remotes                                                                                    | { remoteKey: "{global}@{url}" } | {app2: "app@http://xx.js"} |
+| runtime.injectVars                                     | Inject variables for other runtime hooks, any runtime hook can using "\_\_umf\_\_.injectVars" | {}                              | {test: 123}                |
+| runtime.initial():promise                              | initial runtime hooks                                                                          | []                              |                            |
+| runtime.import({url, name, remoteKey}):promise<module> | Introduce the hook of remote, need to return a container{init, get}                            | []                              |                            |
 
 #### \_\_umf\_\_
 
 Any runtime hooks will inject the "\_\_umf\_\_" variable
 
 
-| property                                                             | desc                                                                                                                 | examles                                    |
-|----------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
-| $getRemote("request"):promise<module>                                | Get the remote module, same as import xxx from "xxxx/xxx"                                                            | $getRemote("app2/App")                     |
-| $getShare(pkg, {singleton, requiredVersion, ......}):promise<module> | Get modules from shareScopes, same as "shared" configuration                                                         | $getShare("react", {singleton: true})      |
-| $containerRemoteKeyMap: object                                       | example remotes: {"@app2/xx": "app3@http://xxx"}  | $containerRemoteKeyMap.app3 --> "@app2/xx" |
-| $injectVars: object                                                  | Variables injected by plugins                                                                                        |                                            |
-| $context: object                                                     | $context is an empty object by default, used to pass values between multiple hooks                                   | $context.xxx = xxx                         |
-| -                                                                    | -                                                                                                                    | -                                          |
+| property                                                            | desc                                                                               | examles                                    |
+|---------------------------------------------------------------------|------------------------------------------------------------------------------------|--------------------------------------------|
+| getRemote("request"):promise<module>                                | Get the remote module, same as import xxx from "xxxx/xxx"                          | getRemote("app2/App")                     |
+| getShare(pkg, {singleton, requiredVersion, ......}):promise<module> | Get modules from shareScopes, same as "shared" configuration                       | getShare("react", {singleton: true})      |
+| containerRemoteKeyMap: object                                       | example remotes: {"@app2/xx": "app3@http://xxx"}                                   | containerRemoteKeyMap.app3 --> "@app2/xx" |
+| injectVars: object                                                  | Variables injected by plugins                                                      |                                            |
+| context: object                                                     | context is an empty object by default, used to pass values between multiple hooks | context.xxx = xxx                         |
+| -                                                                   | -                                                                                  | -                                          |
 
 
 ## dynamic remotes
@@ -197,11 +198,11 @@ module.exports = {
             app2: "app2@http://localhost:3000/remoteEntry.js",
             "mf-app-01": "mfapp01@mf-app-01@1.0.2/dist/remoteEntry.js"
           },
-          runtimeInject: {
+          runtime: {
             resolvePath({name, version, entry, query}) {
               return `https://cdn.jsdelivr.net/npm/${name}@${version}/${entry}?${query}`
             },
-            async import(url, {name}) {
+            async import({url, name}) {
               await new Promise(resolve => {
                 __webpack_require__.l(url, resolve)
               })
@@ -215,7 +216,7 @@ module.exports = {
 
 ## Get module-federation configuration at runtime
 
-"runtimeInject" Can be set to function
+"runtime" Can be set to function
 
 ``` js
 // webpack.config.js
@@ -224,15 +225,57 @@ const {UniversalModuleFederationPlugin} = require("universal-module-federation-p
 module.exports = {
     plugins: [
         new UniversalModuleFederationPlugin({
-          runtimeInject: (mfOptions) => ({
+          runtime: (umfInstance) => ({
             injectVars: {
-                mfOptions
+                mfOptions: umfInstance.mfOptions
             },
-            initial() {
-                console.log("mfOptions", __umf__.$injectVars.mfOptions)
+            initial({__umf__}) {
+                console.log("mfOptions", __umf__.injectVars.mfOptions)
             }
           })
         }),
     ]
+}
+```
+
+## delegate modules
+``` js
+// webpack.config.js
+const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
+
+module.exports = {
+    plugins: [
+        new ModuleFederationPlugin({
+          shared: { react: { singleton: true } },
+        }),
+        new UniversalModuleFederationPlugin({
+          remotes: {
+            "mf-app-01": "mfapp01@https://cdn.jsdelivr.net/npm/mf-app-01/dist/remoteEntry.js",
+          },
+          runtime: "./src/remote-delegate.js"
+        }),
+    ]
+}
+```
+``` js
+// src/remote-delegate.js
+console.log("initial")
+module.exports.import = function ({url, name, remoteKey, __umf__}) {
+  return new Promise((resolve, reject) => {
+    const global = name
+    const __webpack_error__ = new Error()
+    __webpack_require__.l(
+      url,
+      function (event) {
+        if (typeof window[global] !== 'undefined') return resolve(window[global]);
+        var realSrc = event && event.target && event.target.src;
+        __webpack_error__.message = 'Loading script failed.\\n(' + event.message + ': ' + realSrc + ')';
+        __webpack_error__.name = 'ScriptExternalLoadError';
+        __webpack_error__.stack = event.stack;
+        reject(__webpack_error__);
+      },
+      global,
+    );
+  })
 }
 ```

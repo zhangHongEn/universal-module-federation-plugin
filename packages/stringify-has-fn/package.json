@@ -1,6 +1,6 @@
 {
   "name": "stringify-has-fn",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "JSON.stringify has function",
   "main": "src/index.js",
   "devDependencies": {

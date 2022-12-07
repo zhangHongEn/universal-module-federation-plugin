@@ -1,6 +1,6 @@
 
 const PLUGIN_NAME = 'UmdPlugin';
-const formatRuntimeInject = require("./utils/formatRuntimeInject")
+const formatRuntime = require("./utils/formatRuntime")
 const UniversalModuleFederationPlugin = require("./UniversalModuleFederationPlugin")
 
 class UmdPlugin {
@@ -18,12 +18,9 @@ class UmdPlugin {
         // },
         // automatic: ["remotes", "shareScopes"]
       },
-      runtimeUmdExposes({$umdValue, $moduleName}) {
-        return $umdValue
-      },
-      runtimeInject: {}
+      runtime: {}
     }, options)
-    options.runtimeInject = formatRuntimeInject(options.runtimeInject)
+    options.runtime = formatRuntime(options.runtime)
 
     this.options = options
     if (!options.dependencies.referenceShares) {
@@ -40,73 +37,74 @@ class UmdPlugin {
   apply(compiler) {
     new UniversalModuleFederationPlugin({
       remotes: this.options.remotes,
-      runtimeInject: {
+      runtime: {
         injectVars: Object.assign({
           referenceShares: this.options.dependencies.referenceShares,
           referenceRemotes: this.options.dependencies.referenceRemotes,
-          umdExposes: this.options.runtimeUmdExposes,
           automatic: this.options.dependencies.automatic,
-        }, this.options.runtimeInject.injectVars),
+          runtimeGet: this.options.runtime.get
+        }, this.options.runtime.injectVars),
         initial: [
-          () => {
-            const {$getShare, $getRemote, $containerRemoteKeyMap, $injectVars, $context} = __umf__
+          ({__umf__}) => {
+            const {getShare, getRemote, containerRemoteKeyMap, injectVars, context} = __umf__
             const {
               referenceRemotes,
               referenceShares,
               automatic
-            } = $injectVars
+            } = injectVars
             const {interceptSystemAllDep} = require("umfjs")
             const {System, eventBus} = interceptSystemAllDep()
-            $context.System = System
+            context.System = System
             const isInterceptDepFromAllRemotes = automatic.indexOf("remotes") > -1
             const isInterceptDepFromAllShares = automatic.indexOf("shareScopes") > -1
     
             eventBus.on("importDep", (dep) => {
               if (referenceRemotes[dep]) {
-                return $getRemote(referenceRemotes[dep] || dep)
+                return getRemote(referenceRemotes[dep] || dep)
               }
               if (isInterceptDepFromAllRemotes) {
-                const containerName = Object.keys($containerRemoteKeyMap).filter(function (containerName) {
-                  const remoteKey = $containerRemoteKeyMap[containerName]
+                const containerName = Object.keys(containerRemoteKeyMap).filter(function (containerName) {
+                  const remoteKey = containerRemoteKeyMap[containerName]
                   return remoteKey === dep
                 })[0]
-                return containerName && $getRemote(dep)
+                return containerName && getRemote(dep)
               }
             })
             eventBus.on("importDep", (dep) => {
               if (/^https?:/.test(dep)) return
               if (referenceShares[dep]) {
-                return $getShare(referenceShares[dep].import || dep, referenceShares[dep])
+                return getShare(referenceShares[dep].import || dep, referenceShares[dep])
               }
               if (isInterceptDepFromAllShares) {
-                return $getShare(dep, {singleton: true})
+                return getShare(dep, {singleton: true})
               }
             })
           },
-        ].concat(this.options.runtimeInject.initial),
+        ].concat(this.options.runtime.initial),
         import: [
-          function (url) {
-            const {$injectVars} = __umf__
+          function ({url, __umf__}) {
+            const {injectVars} = __umf__
             const {
-              umdExposes,
-            } = $injectVars
+              runtimeGet,
+            } = injectVars
             return {
               init(){},
-              async get(moduleName = "") {
-                const res = await __umf__.$context.System.import(url)
+              async get(request = "") {
+                const res = await __umf__.context.System.import(url)
                 return function() {
-                  return umdExposes({
-                    $umdValue: res,
-                    $moduleName: moduleName
+                  return runtimeGet({
+                    module: res,
+                    request,
+                    __umf__
                   })
                 }
               }
             }
           }
-        ].concat(this.options.runtimeInject.import),
-        beforeImport: this.options.runtimeInject.beforeImport,
-        resolveRequest: this.options.runtimeInject.resolveRequest,
-        resolvePath: this.options.runtimeInject.resolvePath
+        ].concat(this.options.runtime.import),
+        beforeImport: this.options.runtime.beforeImport,
+        resolveRequest: this.options.runtime.resolveRequest,
+        resolvePath: this.options.runtime.resolvePath
       }
     }).apply(compiler)
   }

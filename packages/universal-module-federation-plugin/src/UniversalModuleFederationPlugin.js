@@ -4,7 +4,7 @@ const Inject = require("inject-webpack")
 const PLUGIN_NAME = 'UniversalModuleFederationPlugin';
 const getWebpackVersion = require("./utils/getWebpackVersion")
 const stringifyHasFn = require("stringify-has-fn")
-const formatRuntimeInject = require("./utils/formatRuntimeInject")
+const formatRuntime = require("./utils/formatRuntime")
 const {ContainerReferencePlugin} = require("webpack").container
 
 let hookIndex = 0
@@ -13,7 +13,7 @@ class UniversalModuleFederationPlugin {
   constructor(options = {}) {
     options = Object.assign({
       remotes: {},
-      runtimeInject: {},
+      runtime: {},
     }, options)
     this.options = options
     this.appName = ""
@@ -22,15 +22,16 @@ class UniversalModuleFederationPlugin {
     this.containerRemoteKeyMap = null
     this.remoteMap = null
     this.webpackVersion = null
+    this.allRemotes = null
   }
   apply(compiler) {
-    compiler.__umfplugin__allRemotes = Object.assign(compiler.__umfplugin__allRemotes || {}, this.options.remotes)
+    this.allRemotes = compiler.__umfplugin__allRemotes = Object.assign(compiler.__umfplugin__allRemotes || {}, this.options.remotes)
     this.webpackVersion = getWebpackVersion(compiler)
     this.mfOptions = this.getMfInstance(compiler.options.plugins)._options
     this.containerRemoteKeyMap = this.getContainerRemoteKeyMap(compiler.__umfplugin__allRemotes)
     this.remoteMap = this.getRemoteMap(compiler.__umfplugin__allRemotes)
     this.appName = this.mfOptions.name
-    this.options.runtimeInject = this.formatRuntimeInject(this.options.runtimeInject)
+    this.options.runtime = this.formatRuntime(this.options.runtime)
     let injectCode = `
     var _global = typeof self === "undefined" ? global : self
     _global.__umfplugin__ = Object.assign({
@@ -50,68 +51,100 @@ class UniversalModuleFederationPlugin {
       if (_global.__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]) return
       _global.__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"] = require("semverhook")()
       let __umf__ = {
-        $semverhook: null,
-        $getRemote: null,
-        $getShare: null,
-        $containerRemoteKeyMap: null,
-        $injectVars: null,
-        $context: {}
+        semverhook: null,
+        getRemote: null,
+        getShare: null,
+        containerRemoteKeyMap: null,
+        injectVars: null,
+        context: {}
       }
 
       ;(function () {
         const {findShare} = require("umfjs")
 
-        function $getShare(pkg, config) {
+        function getShare(pkg, config) {
           var share = findShare(pkg, config, typeof __webpack_share_scopes__ !== "undefined" ? __webpack_share_scopes__ : _global.usemf.getShareScopes())
           if (share) {
             return share[1].get().then(res => res())
           }
           return null
         }
-        async function $getRemote(request = "") {
-          const containerName = Object.keys(__umf__.$containerRemoteKeyMap).filter(function(containerName) {
-            const remoteKey = __umf__.$containerRemoteKeyMap[containerName]
+        async function getRemote(request = "") {
+          const containerName = Object.keys(__umf__.containerRemoteKeyMap).filter(function(containerName) {
+            const remoteKey = __umf__.containerRemoteKeyMap[containerName]
             const remoteKeyIndex = request.indexOf(remoteKey)
             const moduleName = request.replace(remoteKey, "")
             return remoteKeyIndex === 0 && (moduleName === "" || moduleName[0] === "/")
           })[0]
-          const moduleName = request.replace(__umf__.$containerRemoteKeyMap[containerName], ".")
+          const moduleName = request.replace(__umf__.containerRemoteKeyMap[containerName], ".")
           if (!_global[containerName]) {
             throw new Error("container " + containerName + " not found")
           }
           return (await _global[containerName].get(moduleName))()
         }
         Object.assign(__umf__, {
-          $semverhook: _global.__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"],
-          $getRemote,
-          $getShare,
-          $containerRemoteKeyMap: ${JSON.stringify(this.containerRemoteKeyMap)},
+          semverhook: _global.__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"],
+          getRemote,
+          getShare,
+          containerRemoteKeyMap: ${JSON.stringify(this.containerRemoteKeyMap)},
         })
       })();
 
-      const __runtimeInject = ${stringifyHasFn(this.options.runtimeInject)}
-      __umf__.$injectVars = __runtimeInject.injectVars
+      ${(() => {
+        const runtime = this.options.runtime
+        if (typeof runtime === "string") {
+          return `const __runtime = require("universal-module-federation-plugin/src/utils/formatRuntime.js")(require("${runtime}"))`
+        }
+        return `const __runtime = ${stringifyHasFn(this.options.runtime)}`
+      })()}
+      __umf__.injectVars = __runtime.injectVars
       
-      const addHook = function(hookName, listeners) {
+      const addHook = function(hookName, listeners, convertParams = (...params) => params) {
         listeners.forEach(cb => {
-          __umf__.$semverhook.on(hookName, cb)
+          __umf__.semverhook.on(hookName, function (...params) {
+            return cb(...convertParams(...params))
+          })
         })
       }
       var initialPromises = []
       addHook("initial", [function () {
-        __runtimeInject.initial.forEach(initial => {
-          initialPromises.push(Promise.resolve(initial()))
+        __runtime.initial.forEach(initial => {
+          initialPromises.push(Promise.resolve(initial({__umf__})))
         })
       }])
       addHook("beforeImport", [async function (url) {
         await Promise.all(initialPromises)
         return url
       }])
-      addHook("beforeImport", __runtimeInject.beforeImport)
-      addHook("import", __runtimeInject.import)
-      addHook("resolvePath", __runtimeInject.resolvePath)
-      addHook("resolveRequest", __runtimeInject.resolveRequest)
-      __umf__.$semverhook.emit("initial")
+      addHook("beforeImport", __runtime.beforeImport, (url, options) => {
+        return [{
+          url,
+          name: options.name,
+          remoteKey: options.remoteKey,
+          __umf__
+        }]
+      })
+      addHook("import", __runtime.import, (url, options) => {
+        return [{
+          url,
+          name: options.name,
+          remoteKey: options.remoteKey,
+          __umf__
+        }]
+      })
+      addHook("resolvePath", __runtime.resolvePath, (request) => {
+        return [{
+          ...request,
+          __umf__
+        }]
+      })
+      addHook("resolveRequest", __runtime.resolveRequest, (request) => {
+        return [{
+          ...request,
+          __umf__
+        }]
+      })
+      __umf__.semverhook.emit("initial")
       return _global.__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]
     }
     `
@@ -169,14 +202,7 @@ class UniversalModuleFederationPlugin {
       if (!this.matchRemotes(id)) return
       const name = this.remoteMap[id].split("@")[0]
       return `function () {
-        var _global = typeof self === "undefined" ? global : self
-        var containerImportMap = _global.__umfplugin__.containerImportMap
-        containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"].import("${url}"))
-          .then(function(container) {
-            _global["${name}"] = container
-            return container
-          })
-        return containerImportMap["${name}"]
+        ${this.interceptFetchRemotesCode({name, url, remoteKey: id})}
       }`
     })
   }
@@ -191,13 +217,7 @@ class UniversalModuleFederationPlugin {
       const name = request.split("@")[0]
       remoteModuleMap[remoteKey] = `
       function(){
-        var _global = typeof self === "undefined" ? global : self
-        var containerImportMap = _global.__umfplugin__.containerImportMap
-        return containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"].import("${url}", {name: "${name}", remoteKey: "${remoteKey}"}))
-          .then(function(container) {
-            _global["${name}"] = container
-            return container
-          })
+        ${this.interceptFetchRemotesCode({name, url, remoteKey})}
       }()
       `
     })
@@ -208,19 +228,25 @@ class UniversalModuleFederationPlugin {
     }).apply(compiler)
   }
 
-  formatRuntimeInject(runtimeInject = {}) {
-    if (typeof runtimeInject === "function") {
-      runtimeInject = runtimeInject(this.mfOptions, this)
+  interceptFetchRemotesCode({name, url, remoteKey}) {
+    return `
+    var _global = typeof self === "undefined" ? global : self
+    var containerImportMap = _global.__umfplugin__.containerImportMap
+    return containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]
+      .import("${url}", {name: ${JSON.stringify(name)}, remoteKey: ${JSON.stringify(remoteKey)}}))
+      .then(function(container) {
+        _global["${name}"] = container
+        return container
+      })
+    `
+  }
+
+  formatRuntime(runtime = {}) {
+    if (typeof runtime === "function") {
+      runtime = runtime(this)
     }
-    ["initial", "beforeImport", "resolvePath", "resolveRequest", "import"].forEach(key => {
-      if (!runtimeInject[key]) {
-        runtimeInject[key] = []
-      }
-      if (!(runtimeInject[key] instanceof Array)) {
-        runtimeInject[key] = [runtimeInject[key]]
-      } 
-    })
-    return runtimeInject
+    runtime = formatRuntime(runtime)
+    return runtime
   }
 
 }
