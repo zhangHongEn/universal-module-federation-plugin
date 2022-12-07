@@ -24,10 +24,11 @@ class UniversalModuleFederationPlugin {
     this.webpackVersion = null
   }
   apply(compiler) {
+    compiler.__umfplugin__allRemotes = Object.assign(compiler.__umfplugin__allRemotes || {}, this.options.remotes)
     this.webpackVersion = getWebpackVersion(compiler)
     this.mfOptions = this.getMfInstance(compiler.options.plugins)._options
-    this.containerRemoteKeyMap = this.getContainerRemoteKeyMap(this.mfOptions.remotes)
-    this.remoteMap = this.getRemoteMap(this.mfOptions.remotes)
+    this.containerRemoteKeyMap = this.getContainerRemoteKeyMap(compiler.__umfplugin__allRemotes)
+    this.remoteMap = this.getRemoteMap(compiler.__umfplugin__allRemotes)
     this.appName = this.mfOptions.name
     this.options.runtimeInject = this.formatRuntimeInject(this.options.runtimeInject)
     let injectCode = `
@@ -149,7 +150,6 @@ class UniversalModuleFederationPlugin {
     return map
   }
 
-  // TODO: merge remotes
   getRemoteMap(remotes = {}) {
     const map = {}
     Object.keys(remotes).forEach(key => {
