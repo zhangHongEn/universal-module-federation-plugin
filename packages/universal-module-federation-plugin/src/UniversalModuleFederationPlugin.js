@@ -5,7 +5,6 @@ const PLUGIN_NAME = 'UniversalModuleFederationPlugin';
 const getWebpackVersion = require("./utils/getWebpackVersion")
 const stringifyHasFn = require("stringify-has-fn")
 const formatRuntime = require("./utils/formatRuntime")
-const {ContainerReferencePlugin} = require("webpack").container
 
 let hookIndex = 0
 
@@ -55,6 +54,7 @@ class UniversalModuleFederationPlugin {
         getRemote: null,
         getShare: null,
         containerRemoteKeyMap: null,
+        remotes: null,
         injectVars: null,
         context: {}
       }
@@ -77,6 +77,17 @@ class UniversalModuleFederationPlugin {
             return remoteKeyIndex === 0 && (moduleName === "" || moduleName[0] === "/")
           })[0]
           const moduleName = request.replace(__umf__.containerRemoteKeyMap[containerName], ".")
+
+          // interceptFetchRemotesCode处的代码
+          var _global = typeof self === "undefined" ? global : self
+          var containerImportMap = _global.__umfplugin__.containerImportMap
+          containerImportMap[containerName] = containerImportMap[containerName] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]
+            .import(__umf__.remoteMap[__umf__.containerRemoteKeyMap[containerName]].split("@").slice(1).join("@"), {name: containerName, remoteKey: remoteKey = __umf__.containerRemoteKeyMap[containerName]}))
+            .then(function(container) {
+              _global[containerName] = container
+              return container
+            })
+          await containerImportMap[containerName]
           if (!_global[containerName]) {
             throw new Error("container " + containerName + " not found")
           }
@@ -87,6 +98,7 @@ class UniversalModuleFederationPlugin {
           getRemote,
           getShare,
           containerRemoteKeyMap: ${JSON.stringify(this.containerRemoteKeyMap)},
+          remoteMap: ${JSON.stringify(this.allRemotes)},
         })
       })();
 
@@ -208,6 +220,7 @@ class UniversalModuleFederationPlugin {
   }
 
   interceptFetchRemotesWebpack5(compiler) {
+    const {ContainerReferencePlugin} = require("webpack").container
     const mfOptions = this.mfOptions
     const options = this.options
     const remoteModuleMap = {}

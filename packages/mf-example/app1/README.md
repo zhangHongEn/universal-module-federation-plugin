@@ -8,7 +8,7 @@ see: [umf dynamic remotes](https://github.com/zhangHongEn/universal-module-feder
 // webpack.config.js
 new ModuleFederation({
   remotes: {
-    "mf-app-01": "https://cdn.jsdelivr.net/npm/mf-app-01/dist/remoteEntry.js"
+    "mf-app-01": "mfapp01@https://cdn.jsdelivr.net/npm/mf-app-01/dist/remoteEntry.js"
   }
 })
 ```
