@@ -1,5 +1,5 @@
 
-const { RawSource } = require('webpack-sources');
+const path = require("path")
 const Inject = require("inject-webpack")
 const PLUGIN_NAME = 'UniversalModuleFederationPlugin';
 const getWebpackVersion = require("./utils/getWebpackVersion")
@@ -13,11 +13,11 @@ class UniversalModuleFederationPlugin {
     options = Object.assign({
       remotes: {},
       runtime: {},
+      shareScope: "default"
     }, options)
     this.options = options
     this.appName = ""
     this.hookIndex = ++hookIndex
-    this.mfOptions = null
     this.containerRemoteKeyMap = null
     this.remoteMap = null
     this.webpackVersion = null
@@ -26,10 +26,10 @@ class UniversalModuleFederationPlugin {
   apply(compiler) {
     this.allRemotes = compiler.__umfplugin__allRemotes = Object.assign(compiler.__umfplugin__allRemotes || {}, this.options.remotes)
     this.webpackVersion = getWebpackVersion(compiler)
-    this.mfOptions = this.getMfInstance(compiler.options.plugins)._options
     this.containerRemoteKeyMap = this.getContainerRemoteKeyMap(compiler.__umfplugin__allRemotes)
     this.remoteMap = this.getRemoteMap(compiler.__umfplugin__allRemotes)
-    this.appName = this.mfOptions.name
+    // TODO: 此处需要优先mfname, 其次uniqueName
+    this.appName = require(path.join(process.cwd(), "package.json")).name
     this.options.runtime = this.formatRuntime(this.options.runtime)
     let injectCode = `
     var _global = typeof self === "undefined" ? global : self
@@ -81,6 +81,9 @@ class UniversalModuleFederationPlugin {
           // interceptFetchRemotesCode处的代码
           var _global = typeof self === "undefined" ? global : self
           var containerImportMap = _global.__umfplugin__.containerImportMap
+          if (!containerImportMap[containerName] && _global[containerName]) {
+            containerImportMap[containerName] = Promise.resolve(_global[containerName])
+          }
           containerImportMap[containerName] = containerImportMap[containerName] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]
             .import(__umf__.remoteMap[__umf__.containerRemoteKeyMap[containerName]].split("@").slice(1).join("@"), {name: containerName, remoteKey: remoteKey = __umf__.containerRemoteKeyMap[containerName]}))
             .then(function(container) {
@@ -221,7 +224,6 @@ class UniversalModuleFederationPlugin {
 
   interceptFetchRemotesWebpack5(compiler) {
     const {ContainerReferencePlugin} = require("webpack").container
-    const mfOptions = this.mfOptions
     const options = this.options
     const remoteModuleMap = {}
     Object.keys(options.remotes).forEach(remoteKey => {
@@ -235,8 +237,9 @@ class UniversalModuleFederationPlugin {
       `
     })
     new ContainerReferencePlugin({
+      // 此处固定var, interceptFetchRemotesCode函数会重写var类型
       remoteType: "var",
-      shareScope: mfOptions.shareScope,
+      shareScope: this.options.shareScope,
       remotes: remoteModuleMap
     }).apply(compiler)
   }
@@ -245,6 +248,9 @@ class UniversalModuleFederationPlugin {
     return `
     var _global = typeof self === "undefined" ? global : self
     var containerImportMap = _global.__umfplugin__.containerImportMap
+    if (!containerImportMap["${name}"] && _global["${name}"]) {
+      containerImportMap["${name}"] = Promise.resolve(_global["${name}"])
+    }
     return containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]
       .import("${url}", {name: ${JSON.stringify(name)}, remoteKey: ${JSON.stringify(remoteKey)}}))
       .then(function(container) {

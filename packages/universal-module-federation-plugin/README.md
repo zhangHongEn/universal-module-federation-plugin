@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/universal-module-federation-plugin.svg)](https://www.npmjs.com/package/universal-module-federation-plugin)
 [中文文档](https://github.com/zhangHongEn/universal-module-federation-plugin/blob/main/packages/universal-module-federation-plugin/README-cn.md)
 
-support [webpack-4](https://github.com/module-federation/webpack-4)、5
+support [webpack-4](https://github.com/module-federation/webpack-4)、[webpack-5](https://webpack.js.org/plugins/module-federation-plugin/)
 
 Keep the original API of module-federation, support the integration of various module specifications
 
@@ -22,7 +22,6 @@ Allows you to control all the processes of each dependency by yourself
     * [dynamic remotes](#dynamic-remotes)
     * [UniversalModuleFederationPlugin examles](#UniversalModuleFederationPlugin-examles)
     * [UniversalModuleFederationPlugin API](#UniversalModuleFederationPlugin-API)
-    * [Get module-federation configuration at runtime](#Get-module-federation-configuration-at-runtime)
     * [delegate modules](#delegate-modules)
 
 ## UmdPlugin examles
@@ -209,30 +208,6 @@ module.exports = {
               return window[name]
             }
           }
-        }),
-    ]
-}
-```
-
-## Get module-federation configuration at runtime
-
-"runtime" Can be set to function
-
-``` js
-// webpack.config.js
-const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
-
-module.exports = {
-    plugins: [
-        new UniversalModuleFederationPlugin({
-          runtime: (umfInstance) => ({
-            injectVars: {
-                mfOptions: umfInstance.mfOptions
-            },
-            initial({__umf__}) {
-                console.log("mfOptions", __umf__.injectVars.mfOptions)
-            }
-          })
         }),
     ]
 }

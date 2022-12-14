@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/universal-module-federation-plugin.svg)](https://www.npmjs.com/package/universal-module-federation-plugin)
 
-支持 [webpack-4](https://github.com/module-federation/webpack-4)、5
+支持 [webpack-4](https://github.com/module-federation/webpack-4)、[webpack-5](https://webpack.js.org/plugins/module-federation-plugin/)
 
 保持模块联合的原始API，支持各种模块规范的集成
 
@@ -21,7 +21,6 @@
     * [动态远程url示例](#动态远程url示例)
     * [UniversalModuleFederationPlugin 示例](#UniversalModuleFederationPlugin-示例)
     * [UniversalModuleFederationPlugin API](#UniversalModuleFederationPlugin-API)
-    * [运行时获取module-federation配置](#运行时获取module-federation配置)
     * [模块委托](#模块委托)
 
 ## UmdPlugin示例
@@ -206,30 +205,6 @@ module.exports = {
               return window[name]
             }
           }
-        }),
-    ]
-}
-```
-
-## 运行时获取module-federation配置
-
-"runtime" 可以设置为 function
-
-``` js
-// webpack.config.js
-const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
-
-module.exports = {
-    plugins: [
-        new UniversalModuleFederationPlugin({
-          runtime: (umfInstance) => ({
-            injectVars: {
-                mfOptions: umfInstance.mfOptions
-            },
-            initial({__umf__}) {
-                console.log("mfOptions", __umf__.$injectVars.mfOptions)
-            }
-          })
         }),
     ]
 }
