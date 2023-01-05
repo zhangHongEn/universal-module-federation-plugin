@@ -87,7 +87,7 @@ class UniversalModuleFederationPlugin {
           containerImportMap[containerName] = containerImportMap[containerName] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]
             .import(__umf__.remoteMap[__umf__.containerRemoteKeyMap[containerName]].split("@").slice(1).join("@"), {name: containerName, remoteKey: remoteKey = __umf__.containerRemoteKeyMap[containerName]}))
             .then(function(container) {
-              _global[containerName] = container
+              _global[containerName] = _global[containerName] || container
               return container
             })
           await containerImportMap[containerName]
@@ -254,7 +254,7 @@ class UniversalModuleFederationPlugin {
     return containerImportMap["${name}"] = containerImportMap["${name}"] || Promise.resolve(__umfplugin__.semverhook["${this.appName}_${this.hookIndex}"]
       .import("${url}", {name: ${JSON.stringify(name)}, remoteKey: ${JSON.stringify(remoteKey)}}))
       .then(function(container) {
-        _global["${name}"] = container
+        _global["${name}"] = _global["${name}"] || container
         return container
       })
     `
