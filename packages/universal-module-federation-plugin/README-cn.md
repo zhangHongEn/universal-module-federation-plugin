@@ -164,14 +164,14 @@ plugins: [
 
 任何运行时挂钩都会注入"\_\_umf\_\_"变量
 
-| property                                                                        | desc                                                          | examles                                                                |
-|---------------------------------------------------------------------------------|---------------------------------------------------------------|------------------------------------------------------------------------|
-| getRemote("request"):promise<module>                                            | 用于获取远程模块, 与from处语法一致: import xxx from "xxxx/xxx" | getRemote("app2/App")                                                  |
-| getShare(pkgname: string, {singleton, requiredVersion, ......}):promise<module> | 用于获取share, 第二个参数与shared.xxx配置一致                  | getShare("react", {singleton: true})                                   |
-| containerRemoteKeyMap: object                                                   | 如果配置了 remotes: {"@app2/xx": "app3@http://xxx"}           | 则可以这么获取remotes的映射: containerRemoteKeyMap.app3 --> "@app2/xx" |
-| injectVars: object                                                              | 插件配置的注入运行时的变量                                    |                                                                        |
-| context: object                                                                 | $context 默认为空对象，用于多个hook之间传递值                  | context.xxx = xxx                                                      |
-| -                                                                               | -                                                             | -                                                                      |
+| property                                                                        | desc                                                          | examles                                                                                         |
+|---------------------------------------------------------------------------------|---------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| getRemote("request"):promise<module>                                            | 用于获取远程模块, 与from处语法一致: import xxx from "xxxx/xxx" | getRemote("app2/App")                                                                           |
+| getShare(pkgname: string, {singleton, requiredVersion, ......}):promise<module> | 用于获取share, 第二个参数与shared.xxx配置一致                  | getShare("react", {singleton: true})                                                            |
+| containerRemoteKeyMap: object                                                   | 如果配置了 remotes: {"@app2/xx": "app3@http://xxx"}           | 则可以这么获取remotes的映射: containerRemoteKeyMap.app3 --> "@app2/xx"                          |
+| injectVars: object                                                              | 插件配置的注入运行时的变量                                    |                                                                                                 |
+| context: object                                                                 | $context 默认为空对象，用于多个hook之间传递值                  | context.xxx = xxx                                                                               |
+| semverhook: object                                                              | 引用remote的钩子                                              | https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/semverhook |
 
 
 ## 动态远程url示例
@@ -211,6 +211,9 @@ module.exports = {
 ```
 
 ## 模块委托
+
+参考自 [delegate-modules](https://github.com/module-federation/module-federation-examples/pull/2466), 非官方
+
 ``` js
 // webpack.config.js
 const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")

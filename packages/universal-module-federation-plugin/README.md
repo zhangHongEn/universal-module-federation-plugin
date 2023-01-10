@@ -167,14 +167,14 @@ plugins: [
 Any runtime hooks will inject the "\_\_umf\_\_" variable
 
 
-| property                                                            | desc                                                                               | examles                                    |
-|---------------------------------------------------------------------|------------------------------------------------------------------------------------|--------------------------------------------|
-| getRemote("request"):promise<module>                                | Get the remote module, same as import xxx from "xxxx/xxx"                          | getRemote("app2/App")                     |
-| getShare(pkg, {singleton, requiredVersion, ......}):promise<module> | Get modules from shareScopes, same as "shared" configuration                       | getShare("react", {singleton: true})      |
-| containerRemoteKeyMap: object                                       | example remotes: {"@app2/xx": "app3@http://xxx"}                                   | containerRemoteKeyMap.app3 --> "@app2/xx" |
-| injectVars: object                                                  | Variables injected by plugins                                                      |                                            |
-| context: object                                                     | context is an empty object by default, used to pass values between multiple hooks | context.xxx = xxx                         |
-| -                                                                   | -                                                                                  | -                                          |
+| property                                                            | desc                                                                              | examles                                                                                         |
+|---------------------------------------------------------------------|-----------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| getRemote("request"):promise<module>                                | Get the remote module, same as import xxx from "xxxx/xxx"                         | getRemote("app2/App")                                                                           |
+| getShare(pkg, {singleton, requiredVersion, ......}):promise<module> | Get modules from shareScopes, same as "shared" configuration                      | getShare("react", {singleton: true})                                                            |
+| containerRemoteKeyMap: object                                       | example remotes: {"@app2/xx": "app3@http://xxx"}                                  | containerRemoteKeyMap.app3 --> "@app2/xx"                                                       |
+| injectVars: object                                                  | Variables injected by plugins                                                     |                                                                                                 |
+| context: object                                                     | context is an empty object by default, used to pass values between multiple hooks | context.xxx = xxx                                                                               |
+| semverhook: object                                                  | remote hook                                                                       | https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/semverhook |
 
 
 ## dynamic remotes
@@ -214,6 +214,9 @@ module.exports = {
 ```
 
 ## delegate modules
+
+Reference from [delegate-modules](https://github.com/module-federation/module-federation-examples/pull/2466), not the official warehouse
+
 ``` js
 // webpack.config.js
 const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
