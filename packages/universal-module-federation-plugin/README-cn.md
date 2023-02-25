@@ -10,7 +10,18 @@
 
 ## 在线尝试
 
-[mf + umd](https://stackblitz.com/github/wpmjs/examples/tree/main/umf-demo?file=app2%2Fwebpack.config.js)
+* [mf + umd](https://stackblitz.com/github/wpmjs/examples/tree/main/umf-demo?file=app2%2Fwebpack.config.js)
+* [web worker（Using module-federation in worker threads）](https://stackblitz.com/github/wpmjs/examples/tree/main/umf-worker-demo)
+    * 这两个插件都可以设置workerFiles来指定worker文件或目录, 以在worker线程使用module-federation
+    * ``` js
+      // webpack.config.js
+      new UmdPlugin({
+        workerFiles: [/\.?worker\.js$/]
+      })
+      new UniversalModuleFederationPlugin({
+        workerFiles: [/\.?worker\.js/]
+      })
+      ```
 
 ## 目录
 

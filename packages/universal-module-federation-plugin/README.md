@@ -11,7 +11,18 @@ Allows you to control all the processes of each dependency by yourself
 
 ## try online
 
-[mf + umd](https://stackblitz.com/github/wpmjs/examples/tree/main/umf-demo?file=app2%2Fwebpack.config.js)
+* [mf + umd](https://stackblitz.com/github/wpmjs/examples/tree/main/umf-demo?file=app2%2Fwebpack.config.js)
+* [web worker（Using module-federation in worker threads）](https://stackblitz.com/github/wpmjs/examples/tree/main/umf-worker-demo)
+    * Both plugins can set workerFiles to specify worker files or directories to use module-federation in worker threads
+    * ``` js
+      // webpack.config.js
+      new UmdPlugin({
+        workerFiles: [/\.?worker\.js$/]
+      })
+      new UniversalModuleFederationPlugin({
+        workerFiles: [/\.?worker\.js/]
+      })
+      ```
 
 ## Table of contents
 

@@ -18,7 +18,8 @@ class UmdPlugin {
         // },
         // automatic: ["remotes", "shareScopes"]
       },
-      runtime: {}
+      runtime: {},
+      workerFiles: [],
     }, options)
     options.runtime = formatRuntime(options.runtime)
 
@@ -105,7 +106,8 @@ class UmdPlugin {
         beforeImport: this.options.runtime.beforeImport,
         resolveRequest: this.options.runtime.resolveRequest,
         resolvePath: this.options.runtime.resolvePath
-      }
+      },
+      workerFiles: this.options.workerFiles
     }).apply(compiler)
   }
 

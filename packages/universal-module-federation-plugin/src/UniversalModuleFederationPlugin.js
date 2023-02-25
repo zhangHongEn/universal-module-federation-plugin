@@ -13,7 +13,8 @@ class UniversalModuleFederationPlugin {
     options = Object.assign({
       remotes: {},
       runtime: {},
-      shareScope: "default"
+      shareScope: "default",
+      workerFiles: [],
     }, options)
     this.options = options
     this.appName = ""
@@ -165,6 +166,8 @@ class UniversalModuleFederationPlugin {
     `
     new Inject(() => {
       return injectCode
+    }, {
+      extraInjection: this.options.workerFiles
     }).apply(compiler)
 
     if (this.webpackVersion === 5) {
