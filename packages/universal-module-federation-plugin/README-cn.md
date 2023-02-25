@@ -19,7 +19,7 @@
         workerFiles: [/\.?worker\.js$/]
       })
       new UniversalModuleFederationPlugin({
-        workerFiles: [/\.?worker\.js/]
+        workerFiles: [/\.?worker\.js$/]
       })
       ```
 

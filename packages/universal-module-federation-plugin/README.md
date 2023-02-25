@@ -20,7 +20,7 @@ Allows you to control all the processes of each dependency by yourself
         workerFiles: [/\.?worker\.js$/]
       })
       new UniversalModuleFederationPlugin({
-        workerFiles: [/\.?worker\.js/]
+        workerFiles: [/\.?worker\.js$/]
       })
       ```
 
