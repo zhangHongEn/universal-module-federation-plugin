@@ -22,6 +22,7 @@
     "packages/semverhook",
     "packages/universal-module-federation-plugin",
     "packages/stringify-has-fn",
-    "packages/mf-example"
+    "packages/mf-example",
+    "packages/single-react-refresh-plugin"
   ]
 }

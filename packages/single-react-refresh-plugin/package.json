@@ -1,0 +1,28 @@
+{
+  "name": "single-react-refresh-plugin",
+  "version": "1.0.1",
+  "description": "",
+  "main": "src/plugin.js",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/single-react-refresh-plugin"
+  },
+  "keywords": [
+    "react-refresh",
+    "module-federation",
+    "react",
+    "hmr",
+    "webpack"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/issues"
+  }
+}
