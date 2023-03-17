@@ -1,6 +1,6 @@
 {
   "name": "single-react-refresh-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "src/plugin.js",
   "files": [
