@@ -4,7 +4,3 @@ Keep the original API of module-federation, support the integration of various m
 
 [doc](./packages/universal-module-federation-plugin)
 
-examples
-
-``` js
-```
