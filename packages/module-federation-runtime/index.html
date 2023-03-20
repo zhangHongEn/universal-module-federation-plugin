@@ -1,0 +1,38 @@
+<script type="module">
+  import {remotes, shareScopes, registerRemotes, findRemote, findModule, registerShared, findShared} from "./dist/index.js"
+
+
+;(async function () {
+  await registerRemotes({
+    "mfapp01": {
+      url: "https://cdn.jsdelivr.net/npm/mf-app-01/dist/remoteEntry.js"
+    },
+    "mfapp02": {
+      url: "https://cdn.jsdelivr.net/npm/mf-app-02@latest/dist/remoteEntry.js"
+    }
+  })
+  registerShared({
+    "react-dom1": {
+      version: "18.0.0",
+      get() {
+        return function () {
+          return {
+            test: 1
+          }
+        }
+      }
+    }
+  })
+  const AppFactory = await findModule("mfapp01", "./App")
+  const shareReactDom = findShared({
+    name: "react-dom"
+  })
+  console.log("remotes", remotes)
+  console.log("findRemote", findRemote("mfapp01"))
+  const App = AppFactory()
+  console.log("App", App)
+  console.log("shareScopes", shareScopes)
+  console.log("shareReactDom from:", shareReactDom.from)
+  console.log("shareReactDom value:", (await shareReactDom.get())())
+})()
+</script>
