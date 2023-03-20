@@ -1,6 +1,6 @@
 ## stringify-has-fn
 
-JSON.stringify has function
+json to string retains the function
 
 ``` js
 const stringifyHasFn = require("stringify-has-fn")
