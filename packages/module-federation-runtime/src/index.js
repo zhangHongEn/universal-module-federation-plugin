@@ -77,8 +77,8 @@ export function registerRemotes(registerRemotes = {}, customLoadScript, shareSco
         shareScope,
         container: null,
         containerPromise: useLoadScript(url)
-          .then(_ => {
-            var container = _global[global]
+          .then(customContainer => {
+            var container = customContainer || _global[global]
             if (!container) {
               if (!container) throw new Error(`not found container from global["${global}"]`)
             }

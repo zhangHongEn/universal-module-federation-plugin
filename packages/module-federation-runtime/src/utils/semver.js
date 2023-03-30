@@ -191,14 +191,32 @@ export const parseRange = str => {
 		// eslint-disable-next-line no-sparse-arrays
 		return [, ...arr, ...items.slice(1).map(() => fn)];
 	};
+	
 	const parseRange = str => {
+
+		function RegexAssertionDowngrade(str) {
+			str = str.trim()
+			const regex = /[-0-9A-Za-z](\s+)/g;
+			let match;
+			let strSplitArr = str.split("")
+			let result = []
+			let prevIndex = 0
+			while ((match = regex.exec(str)) !== null) {
+				result.push(strSplitArr.slice(prevIndex, match.index + 1).join(""))
+				prevIndex = match.index + match[0].length
+			}
+			result.push(strSplitArr.slice(prevIndex).join(""))
+			return result
+		}
 		// range      ::= hyphen | simple ( ' ' ( ' ' ) * simple ) * | ''
 		// hyphen     ::= partial ( ' ' ) * ' - ' ( ' ' ) * partial
 		const items = str.split(/\s+-\s+/);
 		if (items.length === 1) {
-			const items = str
-				.trim()
-				.split(/(?<=[-0-9A-Za-z])\s+/g)
+			// const items = str
+			// 	.trim()
+			// 	.split(/(?<=[-0-9A-Za-z])\s+/g)
+			// 	.map(parseSimple);
+			const items = RegexAssertionDowngrade(str)
 				.map(parseSimple);
 			return combine(items, 2);
 		}
