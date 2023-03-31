@@ -15,12 +15,12 @@ export default {
     babel({
       exclude: 'node_modules/**',
     }),
-    serve({
-      open: true,
-      contentBase: '',
-      port: 8080,
-      openPage: '/index.html',
-    }),
+    // serve({
+    //   open: true,
+    //   contentBase: '',
+    //   port: 8080,
+    //   openPage: '/index.html',
+    // }),
     resolve(),
     commonjs(),
     terser(),
