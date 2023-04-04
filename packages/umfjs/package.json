@@ -1,15 +1,15 @@
 {
   "name": "umfjs",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "universal module federation",
   "main": "dist/index.js",
   "devDependencies": {
     "@babel/core": "7.16.0",
-    "clean-webpack-plugin": "4",
-    "cross-env": "^7.0.3",
     "@babel/plugin-transform-runtime": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "babel-loader": "^8.2.2",
+    "clean-webpack-plugin": "4",
+    "cross-env": "^7.0.3",
     "html-webpack-plugin": "^5.3.1",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.2",
