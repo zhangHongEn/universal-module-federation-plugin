@@ -1,11 +1,12 @@
 {
   "name": "module-federation-runtime",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "",
   "main": "dist/index.js",
   "files": [
     "dist",
-    "types"
+    "types",
+    "src"
   ],
   "types": "types",
   "scripts": {

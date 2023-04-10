@@ -76,7 +76,7 @@ export function registerRemotes(registerRemotes = {}, customLoadScript, shareSco
         url,
         shareScope,
         container: null,
-        containerPromise: useLoadScript(url)
+        containerPromise: Promise.resolve(useLoadScript(url))
           .then(customContainer => {
             var container = customContainer || _global[global]
             if (!container) {
