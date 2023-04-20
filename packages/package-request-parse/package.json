@@ -1,0 +1,22 @@
+{
+  "name": "package-request-parse",
+  "version": "1.0.1",
+  "description": "follow the npm package name + version number rule to parse the request string",
+  "main": "src/index.cjs.js",
+  "module": "src/index.es.js",
+  "files": [
+    "types",
+    "src"
+  ],
+  "types": "types",
+  "devDependencies": {
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/package-request-parse",
+  "keywords": [
+    "npm",
+    "package",
+    "semver"
+  ]
+}
