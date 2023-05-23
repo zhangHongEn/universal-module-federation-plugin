@@ -100,5 +100,5 @@ export function findRemote(global){
 export async function findModule(global, path){
   const container = _global[global]
   if (!container) throw new Error(`not found container from global["${global}"]`)
-  return await container.get(path)
+  return (await container.get(path))()
 }

@@ -13,11 +13,11 @@ export default function loadScript(url) {
   element.async = true;
 
   element.onload = () => {
-    resolve(element)
+    resolve()
   };
 
   element.onerror = () => {
-    reject(element)
+    reject()
   };
   try {
     return promise
