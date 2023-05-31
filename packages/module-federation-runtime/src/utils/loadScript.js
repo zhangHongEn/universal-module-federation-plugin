@@ -1,27 +1,25 @@
 import getPromise from "./getPromise";
 
 export default function loadScript(url) {
-  const {
-    promise,
-    reject,
-    resolve
-  } = getPromise()
-  const element = document.createElement('script');
+  if (typeof document !== "undefined") {
+    const { promise, reject, resolve } = getPromise()
+    const element = document.createElement("script")
 
-  element.src = url;
-  element.type = 'text/javascript';
-  element.async = true;
+    element.src = url;
+    element.type = "text/javascript"
+    element.async = true;
 
-  element.onload = () => {
-    resolve()
-  };
+    element.onload = () => {
+      resolve()
+    };
 
-  element.onerror = () => {
-    reject()
-  };
-  try {
-    return promise
-  } finally {
-    document.head.appendChild(element);
+    element.onerror = () => {
+      reject()
+    };
+    try {
+      return promise
+    } finally {
+      document.head.appendChild(element);
+    }
   }
 }

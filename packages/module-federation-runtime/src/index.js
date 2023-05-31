@@ -3,8 +3,13 @@ import {findShared as _findShared} from "./utils/findShared"
 import loadScript from "./utils/loadScript"
 
 function getDefaultShareScopes() {
-  return typeof __global_share_scopes__ === "undefined" ? 
-    __webpack_share_scopes__ || {} : __global_share_scopes__
+  if (typeof __global_share_scopes__ === "undefined") {
+    return typeof __webpack_share_scopes__ === "undefined"
+      ? {}
+      : __webpack_share_scopes__
+  }
+
+  return __global_share_scopes__
 }
 
 var _global = typeof self === "undefined" ? global : self
