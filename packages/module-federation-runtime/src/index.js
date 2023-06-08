@@ -1,6 +1,7 @@
 
 import {findShared as _findShared} from "./utils/findShared"
 import loadScript from "./utils/loadScript"
+import _global from "global"
 
 function getDefaultShareScopes() {
   if (typeof __global_share_scopes__ === "undefined") {
@@ -12,7 +13,6 @@ function getDefaultShareScopes() {
   return __global_share_scopes__
 }
 
-var _global = typeof self === "undefined" ? global : self
 _global.__global_share_scopes__ = getDefaultShareScopes()
 var _shareScopes = _global.__global_share_scopes__
 
