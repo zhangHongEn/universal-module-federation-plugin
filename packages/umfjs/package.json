@@ -1,6 +1,6 @@
 {
   "name": "umfjs",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "universal module federation",
   "main": "dist/index.js",
   "devDependencies": {
@@ -13,7 +13,8 @@
     "html-webpack-plugin": "^5.3.1",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.2",
-    "webpack-dev-server": "^4.0.0"
+    "webpack-dev-server": "^4.0.0",
+    "module-federation-runtime": "^1.1.11"
   },
   "dependencies": {
     "semverhook": "^1.1.0",
