@@ -64,7 +64,7 @@ class UniversalModuleFederationPlugin {
         const {findShared} = require("module-federation-runtime")
 
         function getShare(pkg, config) {
-          var share = findShared(Object.assgin(config, {name: pkg}))
+          var share = findShared(Object.assign(config, {name: pkg}))
           if (share) {
             return share.get().then(res => res())
           }
