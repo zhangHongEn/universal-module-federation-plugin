@@ -1,6 +1,6 @@
 {
   "name": "universal-module-federation-plugin",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Module federation supports the integration of various specifications, such as umd",
   "main": "src/index.js",
   "keywords": [
@@ -15,7 +15,8 @@
     "inject-webpack": "^0.4.3",
     "webpack-virtual-modules": "^0.4.6",
     "umfjs": "^0.3.4",
-    "stringify-has-fn": "^1.0.3"
+    "stringify-has-fn": "^1.0.3",
+    "module-federation-runtime": "^1.1.11"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

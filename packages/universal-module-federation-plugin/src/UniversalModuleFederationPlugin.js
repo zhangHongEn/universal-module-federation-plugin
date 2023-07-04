@@ -61,12 +61,12 @@ class UniversalModuleFederationPlugin {
       }
 
       ;(function () {
-        const {findShare} = require("umfjs")
+        const {findShared} = require("module-federation-runtime")
 
         function getShare(pkg, config) {
-          var share = findShare(pkg, config, typeof __webpack_share_scopes__ !== "undefined" ? __webpack_share_scopes__ : _global.usemf.getShareScopes())
+          var share = findShared(Object.assgin(config, {name: pkg}))
           if (share) {
-            return share[1].get().then(res => res())
+            return share.get().then(res => res())
           }
           return null
         }
