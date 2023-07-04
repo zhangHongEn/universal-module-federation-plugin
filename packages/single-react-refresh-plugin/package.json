@@ -1,7 +1,7 @@
 {
   "name": "single-react-refresh-plugin",
-  "version": "1.0.4",
-  "description": "",
+  "version": "1.0.5",
+  "description": "module-federation hmr",
   "main": "src/plugin.js",
   "files": [
     "src"
