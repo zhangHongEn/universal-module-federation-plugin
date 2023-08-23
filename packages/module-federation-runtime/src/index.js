@@ -44,7 +44,10 @@ export function registerShared(shared = {}, shareScopes){
       fromType: "runtime",
       from,
       loaded,
-      get
+      get(...params) {
+        shareScopes[shareScope][name][version].loaded = 1
+        return get.apply(this, params)
+      }
     }
   })
 }

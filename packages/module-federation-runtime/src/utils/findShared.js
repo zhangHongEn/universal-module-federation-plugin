@@ -18,7 +18,8 @@ export function findShared(shareConfig = {}, shareScopes) {
   loadedRangeMax || loadedMax || rangeMax || max :
     rangeMax || max
   if (strictVersion && !rangesMaxSatisfying([useShareVersion], requiredVersion)) {
-    throw new Error(`Unsatisfied version \${useShareVersion} from app1 of shared singleton module react (required ${requiredVersion})
+    const useShareFrom = shareScopes[shareScope][pkg][useShareVersion].from
+    throw new Error(`Unsatisfied version ${useShareVersion} from ${useShareFrom} of shared singleton module ${pkg} (required ${requiredVersion})
     at getStrictSingletonVersion `)
   }
   return shareScopes[shareScope][pkg][useShareVersion]
