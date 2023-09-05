@@ -16,6 +16,7 @@ function getDefaultShareScopes() {
 _global.__global_share_scopes__ = getDefaultShareScopes()
 var _shareScopes = _global.__global_share_scopes__
 
+
 export const remotes = {
   // [global]: {
   //   url,
@@ -24,12 +25,16 @@ export const remotes = {
   //   containerPromise
   // }
 }
+export const remoteInitPromises = []
 export const shareScopes = _shareScopes
 
 export function initShared(shareScopeKey, shareScopes){
   shareScopes = shareScopes || _shareScopes
   if (!shareScopes[shareScopeKey]) shareScopes[shareScopeKey] = {}
+  return Promise.all([remoteInitPromises]).then(() => 1)
 }
+
+export const initSharing = initShared
 
 export function registerShared(shared = {}, shareScopes){
   shareScopes = shareScopes || _shareScopes
@@ -68,31 +73,35 @@ export function registerRemotes(registerRemotes = {}, customLoadScript, shareSco
       initShared(shareScope, shareScopes)
       if (container) {
         // 已有remote, 复用
+        const containerPromise = Promise.resolve(container)
+        remoteInitPromises.push(containerPromise)
         return {
           url,
           shareScope,
           container,
-          containerPromise: Promise.resolve(container)
+          containerPromise
         }
       }
       if (remotes[global]) {
         // 重复注册remote, 复用
         return remotes[global]
       }
+      const containerPromise = Promise.resolve(useLoadScript(url))
+        .then(customContainer => {
+          var container = customContainer || _global[global]
+          _global[global] = _global[global] || container
+          if (!container) {
+            if (!container) throw new Error(`not found container from global["${global}"]`)
+          }
+          remotes[global].container = container
+          return container.init(shareScopes[shareScope])
+        })
+      remoteInitPromises.push(containerPromise)
       remotes[global] = {
         url,
         shareScope,
         container: null,
-        containerPromise: Promise.resolve(useLoadScript(url))
-          .then(customContainer => {
-            var container = customContainer || _global[global]
-            _global[global] = _global[global] || container
-            if (!container) {
-              if (!container) throw new Error(`not found container from global["${global}"]`)
-            }
-            remotes[global].container = container
-            return container.init(shareScopes[shareScope])
-          })
+        containerPromise
       }
       return remotes[global].containerPromise
     })

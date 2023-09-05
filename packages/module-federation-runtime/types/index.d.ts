@@ -36,7 +36,7 @@ declare module "module-federation-runtime" {
   export const shareScopes: {
     [key: string]: ShareScope;
   };
-  export function initShared(shareScopeKey: string, shareScopes?: ShareScopes): void;
+  export function initSharing(shareScopeKey: string): Promise<1>;
   export function registerShared(shared: {
     [name: string]: {
       get: function(): ModuleFactory;

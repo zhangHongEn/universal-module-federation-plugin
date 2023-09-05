@@ -18,7 +18,7 @@ this package simulates and exposes the module-federation API
 - [API](#api)
   - [remotes](#remotes)
   - [shareScopes](#sharescopes)
-  - [initShared](#initshared)
+  - [initSharing](#initsharing)
   - [registerShared](#registershared)
   - [findShared](#findshared)
   - [registerRemotes](#registerremotes)
@@ -34,7 +34,7 @@ npm install module-federation-runtime
 ## Usage example
 
 ```js
-import { remotes, shareScopes, initShared, registerShared, findShared, registerRemotes, findRemote, findModule } from 'module-federation-runtime';
+import { remotes, shareScopes, initSharing, registerShared, findShared, registerRemotes, findRemote, findModule } from 'module-federation-runtime';
 
 ;(async function () {
   await registerRemotes({
@@ -45,6 +45,7 @@ import { remotes, shareScopes, initShared, registerShared, findShared, registerR
       url: "https://cdn.jsdelivr.net/npm/mf-app-02@latest/dist/remoteEntry.js"
     }
   })
+  initSharing("default").then(() => {})
   registerShared({
     "react-dom1": {
       version: "18.0.0",
@@ -74,10 +75,12 @@ import { remotes, shareScopes, initShared, registerShared, findShared, registerR
 
 ## API
 
-### initShared
+### initSharing
+
+wait for all remote modules to be initialized
 
 ```js
-initShared(shareScopeKey: string, shareScopes?: ShareScopes): void;
+initSharing(shareScopeKey: string): Promise<1>;
 ```
 
 ### registerShared
