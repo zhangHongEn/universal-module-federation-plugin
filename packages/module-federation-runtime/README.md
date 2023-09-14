@@ -45,7 +45,6 @@ import { remotes, shareScopes, initSharing, registerShared, findShared, register
       url: "https://cdn.jsdelivr.net/npm/mf-app-02@latest/dist/remoteEntry.js"
     }
   })
-  initSharing("default").then(() => {})
   registerShared({
     "react-dom1": {
       version: "18.0.0",
@@ -81,6 +80,8 @@ wait for all remote modules to be initialized
 
 ```js
 initSharing(shareScopeKey: string): Promise<1>;
+
+initSharing("default").then(() => {})
 ```
 
 ### registerShared
