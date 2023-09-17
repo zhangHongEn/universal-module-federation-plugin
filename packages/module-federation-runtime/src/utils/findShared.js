@@ -22,5 +22,11 @@ export function findShared(shareConfig = {}, shareScopes) {
     throw new Error(`Unsatisfied version ${useShareVersion} from ${useShareFrom} of shared singleton module ${pkg} (required ${requiredVersion})
     at getStrictSingletonVersion `)
   }
-  return shareScopes[shareScope][pkg][useShareVersion]
+  const share = shareScopes[shareScope][pkg][useShareVersion]
+  const oriShare = share.get
+  share.get = function() {
+    share.loaded = 1
+    return oriShare.call(share)
+  }
+  return share
 }
