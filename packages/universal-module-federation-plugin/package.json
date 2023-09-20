@@ -1,6 +1,6 @@
 {
   "name": "universal-module-federation-plugin",
-  "version": "1.0.9",
+  "version": "2.0.0",
   "description": "open module federation hook, support custom behavior, such as umd specification integration",
   "main": "src/index.js",
   "keywords": [
@@ -11,12 +11,12 @@
   ],
   "devDependencies": {},
   "dependencies": {
-    "semverhook": "^1.2.0",
+    "global": "^4.4.0",
     "inject-webpack": "^0.4.4",
     "webpack-virtual-modules": "^0.4.6",
-    "umfjs": "^0.3.5",
     "stringify-has-fn": "^1.0.3",
-    "module-federation-runtime": "^1.1.11"
+    "module-federation-runtime": "^1.1.11",
+    "systemjs-intercept": "^1.0.14"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
