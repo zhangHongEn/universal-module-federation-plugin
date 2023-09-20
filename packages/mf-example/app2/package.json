@@ -1,6 +1,6 @@
 {
   "name": "mf-app-02",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "main": "dist/remoteEntry.js",
   "license": "MIT",
   "keywords": [
