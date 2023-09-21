@@ -1,10 +1,13 @@
 <body>
   <ul>
     <li>
-      This is a page rendered using wpmjs to load a remote npm package. It uses the module-federation module mf-app-01 and the umd module antd respectively. You can use it in the chrome console (await wpmjs.import("antd")) .Button and await wpmjs.import("mf-app-01/App") to get the remote component
+      This is a page rendered using wpmjs to load a remote npm package. The module-federation module mf-app-01 and the umd module antd are used respectively. They can share npm's react or react in shared. You can use (await wpmjs.import("antd")).Button or await wpmjs.import("mf-app-01/App") in the chrome console to get the remote component
     </li>
     <li>
       The wpm debugging panel on the right can automatically connect to the locally started dev-server that meets the specifications, and can also set the version of the remote module for debugging. You can set react 17.1.0 in alias to try it.
+    </li>
+    <li>
+      （pending upgrade）see <a href="https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/wpmjs">wpmjs</a> and <a href="https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/npm-federation-webpack">npm-federation</a>
     </li>
   </ul>
   <script src="https://cdn.jsdelivr.net/npm/module-federation-runtime/dist/umd/index.js"></script>
@@ -77,7 +80,7 @@
       React.createElement(antd.Button, {}, ["antd button"]),
     ]), div)
   })();
-  global.wpmjs.debug({
+  wpmjs.debug({
     baseUrl: "https://cdn.jsdelivr.net/npm"
   })
   </script>
