@@ -1,6 +1,6 @@
 {
   "name": "wpmjs",
-  "version": "4.0.9",
+  "version": "4.0.10",
   "author": "",
   "description": "a runtime loader that integrates multiple module specifications",
   "keywords": [

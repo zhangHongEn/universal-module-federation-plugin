@@ -99,6 +99,7 @@ function wimport(request) {
       } catch(e) {}
       if (!container) {
         const globalKey = pkgConfig.global || this.config.defaultGlobal(requestObj)
+        if (!pkgConfig.url && !this.config.baseUrl) throw new Error("required wpmjs.setConfig({baseUrl})")
         container = (globalKey && _global[globalKey]) || 
           resolveContainer(moduleType, url, {
             request,
