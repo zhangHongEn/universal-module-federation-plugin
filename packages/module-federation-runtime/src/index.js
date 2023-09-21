@@ -86,7 +86,7 @@ export function registerRemotes(registerRemotes = {}, customLoadScript, shareSco
         // 重复注册remote, 复用
         return remotes[global].containerPromise
       }
-      const containerPromise = Promise.resolve(useLoadScript(url))
+      const containerPromise = Promise.resolve(useLoadScript(url, global))
         .then(customContainer => {
           var container = customContainer || _global[global]
           _global[global] = _global[global] || container
