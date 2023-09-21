@@ -27,8 +27,8 @@
     * [UmdPlugin示例](#UmdPlugin示例)
     * [UmdPlugin API](#UmdPlugin-API)
 * UniversalModuleFederation
-    * [UniversalModuleFederationPlugin 示例](#UniversalModuleFederationPlugin-示例)
     * [模块委托](#模块委托)
+    * [UniversalModuleFederationPlugin 示例](#UniversalModuleFederationPlugin-示例)
 
 ## UmdPlugin示例
 
@@ -73,40 +73,6 @@ module.exports = {
 | remotes     | umd remotes          | {}      | {app2: "http://xxx.js"} |
 | workerFiles | web worker file path | []      | [/\.?worker\.js$/]      |
 
-## UniversalModuleFederationPlugin 示例
-
-如果你有自己的模块规范，你可以使用 UniversalModuleFederationPlugin 来集成它。 
-
-UniversalModuleFederationPlugin 暴露一些钩子来自定义控制远程的加载行为
-
-``` js
-// webpack.config.js
-const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
-
-plugins: [
-    new UniversalModuleFederationPlugin({
-      remotes: {
-        app1: function (){
-          return Promise.resolve({
-            init() {},
-            async get(modulePath) {
-                return function () {
-                    return ({"./App1": "./App1", "./App2": "./App2"})[modulePath]
-                }
-            }
-          })
-        }
-      },
-    })
-]
-```
-``` js
-// main.js
-import App1 from "app1/App1"
-import App2 from "app1/App2"
-console.log(App1, App2)
-```
-
 ## 模块委托
 
 [delegate-modules](https://github.com/module-federation/universe/issues/1198)的非官方实现
@@ -147,4 +113,39 @@ module.exports = new Promise((resolve, reject) => {
     global,
   );
 })
+```
+
+
+## UniversalModuleFederationPlugin 示例
+
+如果你有自己的模块规范，你可以使用 UniversalModuleFederationPlugin 来集成它。 
+
+UniversalModuleFederationPlugin 暴露一些钩子来自定义控制远程的加载行为
+
+``` js
+// webpack.config.js
+const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
+
+plugins: [
+    new UniversalModuleFederationPlugin({
+      remotes: {
+        app1: function (){
+          return Promise.resolve({
+            init() {},
+            async get(modulePath) {
+                return function () {
+                    return ({"./App1": "./App1", "./App2": "./App2"})[modulePath]
+                }
+            }
+          })
+        }
+      },
+    })
+]
+```
+``` js
+// main.js
+import App1 from "app1/App1"
+import App2 from "app1/App2"
+console.log(App1, App2)
 ```

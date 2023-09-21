@@ -28,8 +28,8 @@ Allows you to control all the processes of each dependency by yourself
     * [UmdPlugin examles](#UmdPlugin-examles)
     * [UmdPlugin API](#UmdPlugin-API)
 * UniversalModuleFederation
-    * [UniversalModuleFederationPlugin examles](#UniversalModuleFederationPlugin-examles)
     * [delegate modules](#delegate-modules)
+    * [UniversalModuleFederationPlugin examles](#UniversalModuleFederationPlugin-examles)
 
 ## UmdPlugin examles
 
@@ -74,40 +74,6 @@ module.exports = {
 | remotes     | umd remotes          | { remoteKey: "{global}@{url}" } | {}      | string>            |
 | workerFiles | web worker file path |                                 | []      | [/\.?worker\.js$/] |
 
-## UniversalModuleFederationPlugin examles
-
-If you have your own module specification, you can use UniversalModuleFederationPlugin to integrate it. 
-
-UniversalModuleFederationPlugin Exposes some hooks to customize the loading behavior of remote control
-
-``` js
-// webpack.config.js
-const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
-
-plugins: [
-    new UniversalModuleFederationPlugin({
-      remotes: {
-        app1: function (){
-          return Promise.resolve({
-            init() {},
-            async get(modulePath) {
-                return function () {
-                    return ({"./App1": "./App1", "./App2": "./App2"})[modulePath]
-                }
-            }
-          })
-        }
-      },
-    })
-]
-```
-``` js
-// main.js
-import App1 from "app1/App1"
-import App2 from "app1/App2"
-console.log(App1, App2)
-```
-
 ## delegate modules
 
 Reference from [delegate-modules](https://github.com/module-federation/universe/issues/1198)not the official warehouse
@@ -148,4 +114,38 @@ module.exports = new Promise((resolve, reject) => {
     global,
   );
 })
+```
+
+## UniversalModuleFederationPlugin examles
+
+If you have your own module specification, you can use UniversalModuleFederationPlugin to integrate it. 
+
+UniversalModuleFederationPlugin Exposes some hooks to customize the loading behavior of remote control
+
+``` js
+// webpack.config.js
+const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
+
+plugins: [
+    new UniversalModuleFederationPlugin({
+      remotes: {
+        app1: function (){
+          return Promise.resolve({
+            init() {},
+            async get(modulePath) {
+                return function () {
+                    return ({"./App1": "./App1", "./App2": "./App2"})[modulePath]
+                }
+            }
+          })
+        }
+      },
+    })
+]
+```
+``` js
+// main.js
+import App1 from "app1/App1"
+import App2 from "app1/App2"
+console.log(App1, App2)
 ```
