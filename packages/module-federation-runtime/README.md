@@ -130,13 +130,13 @@ registerRemotes(remotes?: {
 ### findRemote
 
 ```js
-findRemote(global: string): ModuleFederationContainer;
+findRemote(global: string): Promise<ModuleFederationContainer>;
 ```
 
 ### findModule
 
 ```js
-findModule(global: string, path: string): ModuleFactory
+findModule(global: string, path: string): Promise<ModuleFactory>
 
 ### remotes
 
