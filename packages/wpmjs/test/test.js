@@ -93,6 +93,6 @@ wpmjs.addImportMap({
     React.createElement(antd.Button, {}, ["antd button"]),
   ]), div)
 })();
-// global.wpmjs.debug({
-//   baseUrl: "https://cdn.jsdelivr.net/npm"
-// })
+global.wpmjs.debug({
+  baseUrl: "https://cdn.jsdelivr.net/npm"
+})

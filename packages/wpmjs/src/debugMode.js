@@ -46,7 +46,7 @@ export default function (wpmjs) {
 }
 
 export async function debug(config) {
-  if("wpmDebug" in queryInfo && localStorage.getItem('wpm-debug-open') != 1) {
+  if(localStorage.getItem('wpm-debug-open') != 1) {
     localStorage.setItem('wpm-debug-open', 1);
     setTimeout(() => {
       location.reload()
