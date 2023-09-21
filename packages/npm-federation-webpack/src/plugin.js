@@ -41,9 +41,7 @@ class NpmFederationPlugin {
       const wpmjs = new globalThis.wpmjs.constructor({
         name: ${JSON.stringify(name)}
       })
-      wpmjs.setConfig({
-        baseUrl: "https://cdn.jsdelivr.net/npm"
-      })
+      wpmjs.setConfig(${JSON.stringify(this.config || {})})
       wpmjs.addImportMap(${JSON.stringify(this.remotes)})
       Object.keys(wpmjs.config.importMap).forEach(key => {
         const moduleConfig = wpmjs.config.importMap[key]

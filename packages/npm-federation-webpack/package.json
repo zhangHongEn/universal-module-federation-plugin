@@ -1,6 +1,6 @@
 {
   "name": "npm-federation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Use systemjs to add npm and umd extensions to module-federation",
   "main": "src/plugin.js",
   "scripts": {
