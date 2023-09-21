@@ -10,13 +10,13 @@ export default {
   input: "src/index.js",
   output: process.env.TARGET === "web" ? [
     {
-      file: "dist/index.esm.js",
+      file: "dist/index.js",
       format: "es",
       sourcemap: true,
     }
   ] : [
     {
-      file: "dist/node.cjs.js",
+      file: "dist/node/index.js",
       format: "cjs",
       sourcemap: true,
     },

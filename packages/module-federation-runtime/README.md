@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/single-react-refresh-plugin.svg)](https://www.npmjs.com/package/module-federation-runtime)
 
-this package simulates and exposes the module-federation API
+this package simulates and exposes the module-federation API, Support browser and node environment
 
 ## applicable scene
 
@@ -32,6 +32,12 @@ npm install module-federation-runtime
 ```
 
 ## Usage example
+```js
+// browser
+import * as runtime from 'module-federation-runtime';
+// node
+import * as runtime from 'module-federation-runtime/dist/node';
+```
 
 ```js
 import { remotes, shareScopes, initSharing, registerShared, findShared, registerRemotes, findRemote, findModule } from 'module-federation-runtime';

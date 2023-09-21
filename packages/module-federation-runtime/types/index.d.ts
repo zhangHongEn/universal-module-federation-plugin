@@ -59,6 +59,6 @@ declare module "module-federation-runtime" {
       shareScope?: string;
     };
   }, customLoadScript?: function():Promise<any>, shareScopes?: ShareScopes): Promise;
-  export function findRemote(global: string): ModuleFederationContainer;
-  export function findModule(global: string, path: string): ModuleFactory;
+  export function findRemote(global: string): Promise<ModuleFederationContainer>;
+  export function findModule(global: string, path: string): Promise<ModuleFactory>;
 }

@@ -1,4 +1,3 @@
-
 import {findShared as _findShared} from "./utils/findShared"
 import loadScript from "./utils/loadScript"
 import _global from "global"
@@ -87,14 +86,14 @@ export function registerRemotes(registerRemotes = {}, customLoadScript, shareSco
         return remotes[global].containerPromise
       }
       const containerPromise = Promise.resolve(useLoadScript(url, global))
-        .then(customContainer => {
+        .then(async customContainer => {
           var container = customContainer || _global[global]
-          _global[global] = _global[global] || container
           if (!container) {
             if (!container) throw new Error(`not found container from global["${global}"]`)
           }
           remotes[global].container = container
-          return container.init(shareScopes[shareScope])
+          await container.init(shareScopes[shareScope])
+          return container
         })
       remoteInitPromises.push(containerPromise)
       remotes[global] = {
@@ -108,14 +107,14 @@ export function registerRemotes(registerRemotes = {}, customLoadScript, shareSco
   return Promise.all(containersIniting)
 }
 
-export function findRemote(global){
-  const container = _global[global]
+export async function findRemote(global){
+  const container = await remotes[global]?.containerPromise || _global[global]
   if (!container) throw new Error(`not found container from global["${global}"]`)
   return container
 }
 
 export async function findModule(global, path){
-  const container = _global[global]
+  const container = await findRemote(global)
   if (!container) throw new Error(`not found container from global["${global}"]`)
   return (await container.get(path))()
 }
