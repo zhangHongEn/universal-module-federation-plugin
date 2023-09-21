@@ -77,10 +77,20 @@
     document.body.appendChild(div)
     reactDom.render(React.createElement("div", {}, [
       React.createElement(App1.default),
-      React.createElement(antd.DatePicker.RangePicker, {
-        placeholder: ["antd", "RangePicker"],
-      }),
-      React.createElement(antd.Button, {}, ["antd button"]),
+      React.createElement(antd.Divider),
+      React.createElement("div", {
+        style: {
+          padding: 40,
+          background: "cyan",
+        }
+      }, [
+        React.createElement("span", { style: {paddingRight: 20, fontSize: 24, fontWeight: 700 } }, ["umd remote module:"]),
+        React.createElement(antd.DatePicker.RangePicker, {
+          placeholder: ["antd", "RangePicker"],
+        }),
+        React.createElement(antd.Button, {}, ["antd button"]),
+        React.createElement("span", { style: {paddingLeft: 20, fontSize: 24, fontWeight: 700 } }, ["react version:" + React.version]),
+      ]),
     ]), div)
   })();
   wpmjs.debug({
