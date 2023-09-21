@@ -2,8 +2,6 @@
 
 [![npm](https://img.shields.io/npm/v/universal-module-federation-plugin.svg)](https://www.npmjs.com/package/universal-module-federation-plugin)
 
-支持 [webpack-4](https://github.com/module-federation/webpack-4)、[webpack-5](https://webpack.js.org/plugins/module-federation-plugin/)
-
 保持模块联合的原始API，支持各种模块规范的集成
 
 允许您自己控制每个依赖项的所有步骤
