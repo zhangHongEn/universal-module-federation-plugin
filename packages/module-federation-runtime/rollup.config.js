@@ -13,6 +13,12 @@ export default {
       file: "dist/index.js",
       format: "es",
       sourcemap: true,
+    },
+    {
+      file: "dist/umd/index.js",
+      format: "umd",
+      name: "module-federation-runtime",
+      sourcemap: true,
     }
   ] : [
     {

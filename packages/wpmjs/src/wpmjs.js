@@ -4,21 +4,14 @@
  * container 是一个包, 可以通过 await container.$getEntry("entry") 来获取包暴露的入口模块
  */
 
-// 待办todo: local面板
 // 待办todo: 如有需要, 将^18.0.2改为18.999.999, 将18.2改为18.2.999
-// 待办todo: universal使用wpmjs
 // 待办todo: 多例register
-// 跨iframe localsto
 // todo: 优化baseUrl 非/结尾
-// todo: debugMode改为每个实例都执行
 // todo: 文档怎么找包路径 截图 https://unpkg.com/antd@4.24.14/dist/antd.min.js
 // todo: addImap package不必填优化
-// todo: 注入初始debugCode钩子, hmr插件
-// todo: 修改module-shared-pool的 api factory可以暂不执行
+// todo: hmr
 // todo: 每一个app的shared注册完成后, 
-// todo: 插件需要增加preload
 // todo: shared优先级提高来做热更新
-// todo: umdFederation插件使用module-federation-runtime重构
 const _global = require("global")
 const { default: Config } = require('./config');
 const { resolveUrl, resolveEntry, formatContainer, resolveContainer, registerLoader } = require('./moduleResolve');
