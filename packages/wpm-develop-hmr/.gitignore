@@ -1,0 +1,17 @@
+build
+node_modules/
+.sass-cache/
+.tmp/
+dist/
+*bundle.js
+./idea
+.vscode/
+npm-debug.log
+src-1
+kraken.menu.js
+package-lock.json
+.DS_Store
+.history
+.idea
+yarn.lock
+yarn-error.log

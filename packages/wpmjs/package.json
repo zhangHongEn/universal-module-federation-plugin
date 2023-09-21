@@ -1,0 +1,53 @@
+{
+  "name": "wpmjs",
+  "version": "4.0.8",
+  "author": "",
+  "description": "a runtime loader that integrates multiple module specifications",
+  "keywords": [
+    "webpack",
+    "module",
+    "federation",
+    "umd"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wpmjs/wpmjs/tree/main/packages/wpmjs"
+  },
+  "homepage": "https://github.com/wpmjs/wpmjs/tree/main/packages/wpmjs",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "license": "ISC",
+  "scripts": {
+    "pub": "nrm use npm && npm publish --tag=beta && nrm use weimob && npm publish --tag=beta",
+    "build": "cross-env NODE_ENV=production webpack --mode production",
+    "upload": "wpm upload -n wpmjs -d dist",
+    "upload-umdlist": "mcdn settoken 97616530-79fe-11ed-9c6c-1f14848584a5 && mcdn upload wpm-umd-list -d ./wpm-umd-list && mcdn refresh -f wpm-umd-list/index.json",
+    "dev": "cross-env NODE_ENV=development webpack serve --mode development"
+  },
+  "devDependencies": {
+    "@babel/core": "7.16.0",
+    "@babel/plugin-transform-runtime": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "babel-loader": "^8.2.2",
+    "clean-webpack-plugin": "4",
+    "cross-env": "^7.0.3",
+    "html-webpack-plugin": "^5.3.1",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^4.0.0"
+  },
+  "dependencies": {
+    "lodash-es": "^4.17.21",
+    "lodash.merge": "^4.6.2",
+    "module-federation-runtime": "^1.2.2",
+    "module-shared-pool": "^1.0.2",
+    "package-request-parse": "^1.0.1",
+    "pre-get": "^1.0.7",
+    "semverhook": "^1.2.0",
+    "systemjs": "^6.12.2",
+    "systemjs-intercept": "^1.0.14",
+    "wpm-develop-panel": "^1.0.7"
+  }
+}
