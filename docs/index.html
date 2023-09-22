@@ -1,8 +1,9 @@
 <body>
   <ul>
     <li>
-      This is a page rendered using wpmjs to load a remote npm package. The module-federation module mf-app-01 and the umd module antd are used respectively. They can share npm's react or react in shared. You can use (await wpmjs.import("antd")).Button or await wpmjs.import("mf-app-01/App") in the chrome console to get the remote component
+      This is a page rendered using wpmjs to load a remote npm package. Use module-federation module mf-app-01 and umd module antd respectively. They can reuse React from npm or shareScopes.
     </li>
+    <li><a href="https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/mf-example/app1">You can clone this warehouse and start mf-app-01</a>, and you will find that the local mf-app-01 will appear in the debugging panel on the right, and you can switch between online and local with one click.</li>
     <li>
       The wpm debugging panel on the right can automatically connect to the locally started dev-server that meets the specifications, and can also set the version of the remote module for debugging. You can set react 18.1.0 in alias to try it.
     </li>

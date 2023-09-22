@@ -3,6 +3,7 @@ const {ModuleFederationPlugin} = require('webpack').container
 const path = require('path');
 const {UmdPlugin} = require("universal-module-federation-plugin")
 const Inject = require("inject-webpack")
+const Port = require("webpack-port-collector")
 
 module.exports = {
   entry: './src/index',
@@ -15,6 +16,7 @@ module.exports = {
     port: 9001,
   },
   output: {
+    path: __dirname + "/dist",
     clean: true,
     publicPath: 'auto',
   },
@@ -40,6 +42,7 @@ module.exports = {
       },
       shared: { react: { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" }, 'react-dom': { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" } },
     }),
+    new Port(),
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),

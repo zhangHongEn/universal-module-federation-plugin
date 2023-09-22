@@ -2,19 +2,10 @@
 
 Here is an online module-federation example
 
-see: [umf dynamic remotes](https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/universal-module-federation-plugin#dynamic-remotes)
-
-``` js
-// webpack.config.js
-new ModuleFederation({
-  remotes: {
-    "mf-app-01": "mfapp01@https://cdn.jsdelivr.net/npm/mf-app-01/dist/remoteEntry.js"
-  }
-})
+```sh
+git clone https://github.com/zhangHongEn/universal-module-federation-plugin.git && cd universal-module-federation-plugin/packages/mf-example/app1 && npm install && npm run start
 ```
-``` js
-// webpack.config.js
-import App1 from "mf-app-01/App"
+*chrome open https://zhanghongen.github.io/universal-module-federation-plugin/*
 
-<App1 />
-```
+
+![](../../../docs/debug-panel.png)
