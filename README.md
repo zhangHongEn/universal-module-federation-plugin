@@ -4,6 +4,10 @@
 Versioned remote module manager based on npm and module-federation,   [View online demo](https://zhanghongen.github.io/universal-module-federation-plugin/)
 
 ![](./docs/debug-panel.png)
+#### high priority plan
+1. Documents, examples, development specifications, and contribution guide supplements
+2. wpm plugins supplement
+3. Hot update integration
 
 ### [module-federation-runtime](./packages/module-federation-runtime)
 this package simulates and exposes the module-federation API
