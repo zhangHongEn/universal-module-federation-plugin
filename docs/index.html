@@ -13,8 +13,8 @@
       <a href="#">clear cache</a>
     </li>
   </ul>
-  <script src="https://cdn.jsdelivr.net/npm/module-federation-runtime/dist/umd/index.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/wpmjs@4"></script>
+  <script src="https://assets.weimob.com/module-federation-runtime/dist/umd/index.js"></script>
+  <script src="https://assets.weimob.com/wpmjs@4"></script>
   <script>
   const wpmjs = window.wpmjs
   
@@ -23,7 +23,7 @@
   })
   
   wpmjs.setConfig({
-    baseUrl: "https://cdn.jsdelivr.net/npm",
+    baseUrl: "https://assets.weimob.com",
   })
   
   wpmjs.addImportMap({
@@ -43,10 +43,6 @@
     "mf-app-01": {
       package: "mf-app-01/dist/remoteEntry.js",
       global: "mfapp01"
-    },
-    "mf-app-02": {
-      package: "mf-app-02/dist/remoteEntry.js",
-      global: "mfapp02"
     }
   })
   
@@ -71,7 +67,7 @@
     const [
       App1,
       antd,
-    ] = await Promise.all(["mf-app-01/App", "antd", "mf-app-02/App"].map(pkg => wpmjs.import(pkg)));
+    ] = await Promise.all(["mf-app-01/App", "antd"].map(pkg => wpmjs.import(pkg)));
   
     const div = document.createElement("div")
     document.body.appendChild(div)
@@ -94,7 +90,7 @@
     ]), div)
   })();
   wpmjs.debug({
-    baseUrl: "https://cdn.jsdelivr.net/npm"
+    baseUrl: "https://assets.weimob.com"
   })
   </script>
 </body>
