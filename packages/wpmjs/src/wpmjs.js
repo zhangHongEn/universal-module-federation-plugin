@@ -84,7 +84,7 @@ function wimport(request) {
       const moduleType = pkgConfig.moduleType
       let url = pkgConfig.url
       if (url) {
-        url += "/" + pkgConfig.packageFilename
+        url += "/" + pkgConfig.packageFilename.split("/").pop()
       } else {
         url = resolveUrl(moduleType, requestObj, this.loaderMap);
       }
