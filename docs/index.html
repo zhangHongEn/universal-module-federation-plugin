@@ -14,8 +14,8 @@
       <a href="#">clear cache</a>
     </li>
   </ul>
-  <script src="https://assets.weimob.com/module-federation-runtime/dist/umd/index.js"></script>
-  <script src="https://assets.weimob.com/wpmjs@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/module-federation-runtime/dist/umd/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/wpmjs@4"></script>
   <script>
   const wpmjs = window.wpmjs
   
@@ -24,7 +24,7 @@
   })
   
   wpmjs.setConfig({
-    baseUrl: "https://assets.weimob.com",
+    baseUrl: "https://cdn.jsdelivr.net/npm",
   })
   
   wpmjs.addImportMap({
@@ -91,7 +91,7 @@
     ]), div)
   })();
   wpmjs.debug({
-    baseUrl: "https://assets.weimob.com"
+    baseUrl: "https://cdn.jsdelivr.net/npm"
   })
   </script>
 </body>

@@ -16,8 +16,5 @@
   "bugs": {
     "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/issues"
   },
-  "homepage": "https://github.com/zhangHongEn/universal-module-federation-plugin#readme",
-  "workspaces": [
-    "packages/*"
-  ]
+  "homepage": "https://github.com/zhangHongEn/universal-module-federation-plugin#readme"
 }
