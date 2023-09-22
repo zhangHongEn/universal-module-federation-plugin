@@ -56,9 +56,7 @@ const LocalPanel = ({connectorList: pkgList}) => <div className="local-panel">
       })
       : (
         <div style={{textAlign: 'center', padding: 20, color: '#aaa'}}>
-          <div>暂无wpm调试项目</div>
-          {/*<div style={{color:'red'}}>未如期出现调试包，请更新wpm-webpack-plugin</div>*/}
-          {/*<div style={{color:'red'}}>【改用socket传输】</div>*/}
+          <div>not found local dev-server</div>
         </div>
       )
   }
