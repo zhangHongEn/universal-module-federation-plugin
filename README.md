@@ -7,8 +7,8 @@ Versioned remote module manager based on npm and module-federation,   [View onli
 #### high priority plan
 1. Documents, examples, development specifications, and contribution guide supplements
 2. wpm plugins supplement
-3. Hot update integration
-4. Articles (WPM introduction, module-federation features and performance introduction)
+3. Built-in hot update integration
+4. Articles (WPM introduction, module-federation characteristics and performance analysis)
 
 ### [module-federation-runtime](./packages/module-federation-runtime)
 this package simulates and exposes the module-federation API
