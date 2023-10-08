@@ -7,20 +7,21 @@ class NpmFederationPlugin {
   constructor(options = {}) {
     const {
       name,
-      // initial: function(){},
+      initial,
       config,
       debugQuery,
       remotes,
       ...ops
     } = Object.assign({
       name: "",
-      // initial: function(){},
+      initial: "",
       config: {},
       debugQuery: "",
       remotes: {}
     }, options)
     this.options = options
     this.mfOptions = ops
+    this.initial = initial
     this.remotes = remotes
     this.config = config
     this.debugQuery = debugQuery
@@ -38,9 +39,10 @@ class NpmFederationPlugin {
     new VirtualModulesPlugin({
       [`./virtual_npmfederation_wpmjs${this.instanceIndex}`]: `
       const Wpmjs = require("wpmjs")
-      const wpmjs = new globalThis.wpmjs.constructor({
+      let wpmjs = new globalThis.wpmjs.constructor({
         name: ${JSON.stringify(name)}
       })
+      ${this.initial}
       wpmjs.setConfig(${JSON.stringify(this.config || {})})
       wpmjs.addImportMap(${JSON.stringify(this.remotes)})
       Object.keys(wpmjs.config.importMap).forEach(key => {
@@ -57,6 +59,7 @@ class NpmFederationPlugin {
     }).apply(compiler)
     const remotes = {}
     Object.keys(this.remotes).forEach(remoteKey => {
+      // This promise new Promise syntax is not native and will be compiled by Webpack. Please feel free to use it.
       remotes[remoteKey] = `promise new Promise(resolve => {
         const wpmjs = require("./virtual_npmfederation_wpmjs${this.instanceIndex}")
         if (wpmjs.config.importMap["${remoteKey}"].moduleType === "mf") {
