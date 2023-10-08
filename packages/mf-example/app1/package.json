@@ -23,10 +23,10 @@
     "@babel/preset-react": "^7.13.13",
     "babel-loader": "^8.2.2",
     "html-webpack-plugin": "^5.3.1",
-    "universal-module-federation-plugin": "^0.4.11",
+    "npm-federation": "^1.0.2",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^4.0.0",
-    "webpack-port-collector": "^1.0.1"
+    "webpack-port-collector": "^1.0.2"
   }
 }

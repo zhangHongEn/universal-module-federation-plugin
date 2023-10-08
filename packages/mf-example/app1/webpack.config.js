@@ -1,7 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {ModuleFederationPlugin} = require('webpack').container
 const path = require('path');
-const {UmdPlugin} = require("universal-module-federation-plugin")
+const NpmFederation = require("npm-federation")
 const Inject = require("inject-webpack")
 const Port = require("webpack-port-collector")
 
@@ -43,6 +43,14 @@ module.exports = {
       shared: { react: { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" }, 'react-dom': { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" } },
     }),
     new Port(),
+    new NpmFederation({
+      config: {
+        baseUrl: "https://cdn.jsdelivr.net/npm"
+      },
+      remotes: {
+        "@remix-run/router": "@remix-run/router@1.0.3/dist/router.umd.min.js",
+      }
+    }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),
