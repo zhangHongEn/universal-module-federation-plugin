@@ -10,7 +10,6 @@ try {
   }
   
   _localStorage = document.getElementById('wpm-iframe').contentWindow.localStorage;
-  console.log(12334, _localStorage)
 } catch(e) {
   _localStorage = window.localStorage
 }

@@ -1,6 +1,8 @@
 ## wpmjs（web package manager）
 
-基于npm和module-federation的版本化远程模块管理器
+能够加载umd、system、module-federation并共享依赖的加载器
+
+* 基于npm和module-federation的版本化远程模块管理器
 
 ## 特性
 * 多模块规范（集成了system、umd、module-federation等模块规范）

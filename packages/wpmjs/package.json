@@ -1,6 +1,6 @@
 {
   "name": "wpmjs",
-  "version": "4.0.12",
+  "version": "4.0.15",
   "author": "",
   "description": "a runtime loader that integrates multiple module specifications",
   "keywords": [
@@ -41,7 +41,7 @@
   "dependencies": {
     "lodash-es": "^4.17.21",
     "lodash.merge": "^4.6.2",
-    "module-federation-runtime": "^1.2.2",
+    "module-federation-runtime": "^1.2.4",
     "module-shared-pool": "^1.0.2",
     "package-request-parse": "^1.0.1",
     "pre-get": "^1.0.7",

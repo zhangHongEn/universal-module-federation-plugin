@@ -4,9 +4,7 @@ export default function Config(config = {}) {
   this.name = config.name || ""
   this.baseUrl =  config.baseUrl || ""
   this.defaultVersion = config .defaultVersion || function(){return "latest"}
-  this.defaultImportMap = config.defaultImportMap || function(name) {
-    throw new Error(`config scope ${this.name}: ${name} not found importMap`)
-  }
+  this.defaultImportMap = config.defaultImportMap || function(name) {}
   this.defaultGlobal = config.defaultGlobal || function() {
   }
   this.importMap = config.importMap || {

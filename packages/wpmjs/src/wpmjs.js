@@ -12,6 +12,7 @@
 // todo: hmr
 // todo: 每一个app的shared注册完成后, 
 // todo: shared优先级提高来做热更新
+// todo: !!! wpm插件用来等待mfRemotes
 const _global = require("global")
 const { default: Config } = require('./config');
 const { resolveUrl, resolveEntry, formatContainer, resolveContainer, registerLoader } = require('./moduleResolve');
@@ -20,7 +21,7 @@ const { default: parseRequest } = require('package-request-parse');
 const CacheUtil = require("./utils/CacheUtil");
 const { debug } = require("./debugMode");
 
-function resolveRequest(request, config) {
+function resolveRequest(request, config, pkgConfig) {
   if (/^https?:\/\//.test(request)) {
     return request
   }
@@ -33,7 +34,6 @@ function resolveRequest(request, config) {
   if (!name) {
     throw new Error(`【'${request}】请求格式不正确（https://wpm.hsmob.com/assets/wpm-docs/API-SDK.html#wpmjs-import）`)
   }
-  const pkgConfig = getPkgConfig(name, config)
   let requestObj = {
     name: pkgConfig.packageName || name,
     version: pkgConfig.packageVersion || version || config.defaultVersion(name),
@@ -51,18 +51,18 @@ function wimportSync(request) {
 
 function getPkgConfig(name, config) {
   if (!config.importMap[name]?.packageName || !config.importMap[name]?.moduleType) {
-    config.addImportMap({
-      [name]: config.defaultImportMap(name)
-    })
+    const defaultImportMap = config.defaultImportMap(name)
+    if (defaultImportMap) {
+      config.addImportMap({
+        [name]: defaultImportMap
+      })
+    }
   }
   const pkgConfig = config.importMap[name]
-  if (!pkgConfig) {
-    throw new Error(`${name} not found in importMap`)
-  }
   return pkgConfig
 }
 
-function wimport(request) {
+function wimportWrapper(request) {
   return this.cacheUtil.setCache(request, () => {
     if (typeof request !== 'string') {
       throw new Error('包名不是字符串!');
@@ -73,60 +73,78 @@ function wimport(request) {
     // 每次返回一个新的promise, 避免使用处未处理promise链式返回值导致的bug
     return Promise.resolve().then(async _ => {
       await this.config._sleepPromiseAll
-      const pkgConfig = getPkgConfig(parseRequest(request).name, this.config)
-      let requestObj = resolveRequest(request, this.config)
-      const {
-        entry,
-        name,
-        version,
-        query,
-      } = requestObj
-      const moduleType = pkgConfig.moduleType
-      let url = pkgConfig.url
-      if (url) {
-        url += "/" + pkgConfig.packageFilename.split("/").pop()
-      } else {
-        url = resolveUrl(moduleType, requestObj, this.loaderMap);
-      }
-      let container = null
-      try {
-        container = getShared({
-          name,
-          shareScope: pkgConfig.shareScope || "default",
-          requiredVersion: version || "*",
-          strictVersion: pkgConfig.strictVersion
-        })
-      } catch(e) {}
-      if (!container) {
-        const globalKey = pkgConfig.global || this.config.defaultGlobal(requestObj)
-        if (!pkgConfig.url && !this.config.baseUrl) throw new Error("required wpmjs.setConfig({baseUrl})")
-        container = (globalKey && _global[globalKey]) || 
-          resolveContainer(moduleType, url, {
-            request,
-            requestObj,
-            pkgConfig
-          }, this.loaderMap)
-        setShared({
-          name,
-          shareScope: pkgConfig.shareScope || "default",
-          version,
-          loaded: 1,
-          from: this.config.name,
-          get() {
-            return container
-          }
-        })
-      }
-      formatContainer(container, moduleType, this.loaderMap)
-      if (!entry) {
-        // 无需解析入口
-        return container
-      }
-      const entryRes = resolveEntry(moduleType, await container, entry, this.loaderMap)
-      return entryRes
+      return wimport.call(this, request)
     })
   })
 }
+
+/**
+ * 1. getPkgConfig // importMap
+ * 2. findShared 或 resolveContainer
+ * @param {*} request 
+ * @returns 
+ */
+async function wimport(request) {
+  const pkgConfig = getPkgConfig(parseRequest(request).name, this.config)
+  const useConfig = pkgConfig || this.config.requestFormatConfig.call(this, request)
+  let requestObj = resolveRequest(request, this.config, useConfig)
+
+  const {
+    entry,
+    name,
+    version,
+    query,
+  } = requestObj
+  const moduleType = useConfig.moduleType
+  let container = null
+  try {
+    container = getShared({
+      name,
+      shareScope: useConfig.shareScope || "default",
+      requiredVersion: version || "*",
+      strictVersion: useConfig.strictVersion
+    })
+  } catch(e) {}
+  if (!container && !pkgConfig) {
+    throw new Error(`config scope ${this.name}: ${name} not found in both importMap and shareScopes`)
+  }
+  if (!container) {
+    const globalKey = useConfig.global || this.config.defaultGlobal(requestObj)
+    container = (globalKey && _global[globalKey])
+    if (!container) {
+      if (!useConfig.url && !this.config.baseUrl) throw new Error("required wpmjs.setConfig({baseUrl})")
+      let url = useConfig.url
+      if (url) {
+        url += "/" + useConfig.packageFilename.split("/").pop()
+      } else {
+        url = resolveUrl(moduleType, requestObj, this.loaderMap);
+      }
+      container = resolveContainer(moduleType, url, {
+        request,
+        requestObj,
+        pkgConfig: useConfig
+      }, this.loaderMap)
+    }
+    setShared({
+      name,
+      shareScope: useConfig.shareScope || "default",
+      version,
+      loaded: 1,
+      from: this.config.name,
+      get() {
+        return container
+      }
+    })
+  }
+  formatContainer(container, moduleType, this.loaderMap)
+  if (!entry) {
+    // 无需解析入口
+    return container
+  }
+  const entryRes = resolveEntry(moduleType, await container, entry, this.loaderMap)
+  return entryRes
+}
+
 
 function Wpmjs({name} = {}) {
   this.config = new Config({name})
@@ -155,7 +173,7 @@ proto.getConfig = function() {
   return this.config
 }
 proto.debug = debug
-proto.import = wimport
+proto.import = wimportWrapper
 proto.get = wimportSync
 proto.setShared = setShared
 proto.getShared = getShared
