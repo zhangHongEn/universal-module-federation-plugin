@@ -1,6 +1,6 @@
 {
   "name": "npm-federation",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Use systemjs to add npm and umd extensions to module-federation",
   "main": "src/plugin.js",
   "scripts": {
@@ -26,7 +26,7 @@
   "devDependencies": {
   },
   "dependencies": {
-    "wpmjs": "^4.0.12",
+    "wpmjs": "^4.0.15",
     "single-react-refresh-plugin": "^1.0.5",
     "universal-module-federation-plugin": "^2.0.0",
     "webpack-virtual-modules": "^0.5.0"

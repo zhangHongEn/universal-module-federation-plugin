@@ -45,15 +45,21 @@ class NpmFederationPlugin {
       ${this.initial}
       wpmjs.setConfig(${JSON.stringify(this.config || {})})
       wpmjs.addImportMap(${JSON.stringify(this.remotes)})
+      const __mfList = []
+      const __preloadSystemList = []
       Object.keys(wpmjs.config.importMap).forEach(key => {
         const moduleConfig = wpmjs.config.importMap[key]
         const moduleType = moduleConfig.moduleType
         if (moduleType === "mf") {
-          wpmjs.import(key)
+          __mfList.push(key)
         } else if (moduleConfig.preload) {
-          wpmjs.import(key)
+          __preloadSystemList.push(key)
         }
       })
+      // First load the mf module and initialize shareScopes
+      __mfList.forEach(key => wpmjs.import(key))
+      // The dependencies of the system module will be obtained after shareScopes is loaded.
+      __preloadSystemList.forEach(key => wpmjs.import(key))
       module.exports = wpmjs
       `
     }).apply(compiler)
