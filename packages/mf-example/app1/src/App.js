@@ -1,7 +1,7 @@
+import * as reactRouter from "react-router"
 import React from "react";
 import ReactDom from "react-dom";
-import * as remixRouter from "@remix-run/router"
-console.log("remixRouter", remixRouter)
+console.log("react-router", reactRouter)
 
 const App = () => {
   return (

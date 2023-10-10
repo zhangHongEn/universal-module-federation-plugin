@@ -8,7 +8,7 @@ const Port = require("webpack-port-collector")
 module.exports = {
   entry: './src/index',
   devServer: {
-    open: true,
+    open: false,
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
@@ -40,15 +40,36 @@ module.exports = {
       exposes: {
         './App': './src/App.js',
       },
+      // remotes: {
+      //   "mfapp01": "mfapp01@https://cdn.jsdelivr.net/npm/mf-app-01/dist/remoteEntry.js"
+      // },
       shared: { react: { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" }, 'react-dom': { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" } },
     }),
     new Port(),
     new NpmFederation({
+      // Inject some code through initial (not required)
+      initial: `
+        console.log("Inject code wpmjsInstance", wpmjs)
+        wpmjs.sleep(new Promise(resolve => {
+          // fetch("https://xxxxx.json")
+          const json = {
+            "@remix-run/router": {
+              packageVersion: "1.9.0"
+            }
+          }
+          setTimeout(() => {
+            console.log("Asynchronously obtain data and dynamically set the remotes version", json)
+            wpmjs.addImportMap(json)
+            resolve()
+          }, 100)
+        }))
+      `,
       config: {
         baseUrl: "https://cdn.jsdelivr.net/npm"
       },
       remotes: {
-        "@remix-run/router": "@remix-run/router@1.0.3/dist/router.umd.min.js",
+        "@remix-run/router": "@remix-run/router/dist/router.umd.min.js",
+        "react-router": "react-router@latest/dist/umd/react-router.development.js"
       }
     }),
     new HtmlWebpackPlugin({

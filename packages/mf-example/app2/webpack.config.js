@@ -1,13 +1,11 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {ModuleFederationPlugin} = require('webpack').container
 const path = require('path');
-const {UmdPlugin} = require("universal-module-federation-plugin")
-const Inject = require("inject-webpack")
 
 module.exports = {
   entry: './src/index',
   devServer: {
-    open: true,
+    open: false,
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
