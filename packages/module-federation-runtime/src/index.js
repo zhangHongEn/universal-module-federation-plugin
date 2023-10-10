@@ -26,11 +26,14 @@ export const remotes = {
 }
 export const remoteInitPromises = []
 export const shareScopes = _shareScopes
+// if (typeof __webpack_init_sharing__ === "function") {
+//   remoteInitPromises.push(Promise.resolve(__webpack_init_sharing__("default")))
+// }
 
 export function initShared(shareScopeKey, shareScopes){
   shareScopes = shareScopes || _shareScopes
   if (!shareScopes[shareScopeKey]) shareScopes[shareScopeKey] = {}
-  return Promise.all([remoteInitPromises]).then(() => 1)
+  return Promise.all(remoteInitPromises).then(() => 1)
 }
 
 export const initSharing = initShared
