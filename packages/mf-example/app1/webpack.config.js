@@ -45,7 +45,9 @@ module.exports = {
       // },
       shared: { react: { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" }, 'react-dom': { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" } },
     }),
-    new Port(),
+    new Port({
+      filename: "remoteEntry.js"
+    }),
     new NpmFederation({
       // Inject some code through initial (not required)
       initial: `
