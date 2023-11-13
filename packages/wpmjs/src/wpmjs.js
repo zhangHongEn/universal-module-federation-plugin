@@ -1,7 +1,7 @@
 /**
  * 几点代码中的概念:
  * request 是一个字符串 `@[scope]/[name]@[version]/[entry]?[query]`
- * container 是一个包, 可以通过 await container.$getEntry("entry") 来获取包暴露的入口模块
+ * container 是一个包, 可以通过 await container.$getEntry("entryKey") 来获取包暴露的入口模块
  */
 
 // 待办todo: 如有需要, 将^18.0.2改为18.999.999, 将18.2改为18.2.999
@@ -50,14 +50,14 @@ function wimportSync(request) {
 }
 
 function getPkgConfig(name, config) {
-  if (!config.importMap[name]?.packageName || !config.importMap[name]?.moduleType) {
+  // if (!config.importMap[name]) {
     const defaultImportMap = config.defaultImportMap(name)
     if (defaultImportMap) {
       config.addImportMap({
         [name]: defaultImportMap
       })
     }
-  }
+  // }
   const pkgConfig = config.importMap[name]
   return pkgConfig
 }
@@ -85,8 +85,7 @@ function wimportWrapper(request) {
  * @returns 
  */
 async function wimport(request) {
-  const pkgConfig = getPkgConfig(parseRequest(request).name, this.config)
-  const useConfig = pkgConfig || this.config.requestFormatConfig.call(this, request)
+  const useConfig = getPkgConfig(parseRequest(request).name, this.config)
   let requestObj = resolveRequest(request, this.config, useConfig)
 
   const {
@@ -95,27 +94,30 @@ async function wimport(request) {
     version,
     query,
   } = requestObj
-  const moduleType = useConfig.moduleType
+  const moduleType = useConfig?.moduleType || this.config.defaultModuleType()
   let container = null
   try {
     container = getShared({
       name,
-      shareScope: useConfig.shareScope || "default",
+      shareScope: useConfig?.shareScope || "default",
       requiredVersion: version || "*",
-      strictVersion: useConfig.strictVersion
+      strictVersion: useConfig?.strictVersion
     })
   } catch(e) {}
-  if (!container && !pkgConfig) {
+  if (!container && !useConfig) {
     throw new Error(`config scope ${this.name}: ${name} not found in both importMap and shareScopes`)
   }
   if (!container) {
     const globalKey = useConfig.global || this.config.defaultGlobal(requestObj)
     container = (globalKey && _global[globalKey])
     if (!container) {
-      if (!useConfig.url && !this.config.baseUrl) throw new Error("required wpmjs.setConfig({baseUrl})")
-      let url = useConfig.url
-      if (url) {
-        url += "/" + useConfig.packageFilename.split("/").pop()
+      if (!useConfig.url && !useConfig.debugUrl && !this.config.baseUrl) throw new Error("required wpmjs.setConfig({baseUrl})")
+      let url = ""
+      
+      if (useConfig.url) {
+        url = useConfig.url
+      } else if (useConfig.debugUrl) {
+        url = useConfig.debugUrl + "/" + useConfig.packageFilename.split("/").pop()
       } else {
         url = resolveUrl(moduleType, requestObj, this.loaderMap);
       }

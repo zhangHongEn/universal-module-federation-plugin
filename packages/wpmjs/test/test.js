@@ -6,6 +6,20 @@ const wpmjs1 = new wpmjs.constructor({
   name: "wpmjs1"
 })
 
+wpmjs.addImportMap({
+  // react: "react@18.0.1/index.js",
+  // react1: {
+  //   packageName: "",
+  //   packageVersion: "",
+  //   packageEntryfile: "",
+  //   debugUrl: "",
+  // },
+  // react33: {
+  //   url: "https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.development.js"
+  // },
+  // react3: "https://aaaa.com"
+})
+
 wpmjs.setConfig({
   baseUrl: "https://cdn.jsdelivr.net/npm",
 })

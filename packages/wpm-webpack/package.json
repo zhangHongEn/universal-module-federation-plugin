@@ -2,7 +2,7 @@
   "name": "wpm-webpack",
   "version": "1.0.0",
   "description": "Use systemjs to add npm and umd extensions to module-federation",
-  "main": "src/index.js",
+  "main": "src/plugin.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,10 +24,11 @@
     "npm"
   ],
   "devDependencies": {
-    "single-react-refresh-plugin": "^1.0.5",
-    "universal-module-federation-plugin": "^1.0.9"
   },
   "dependencies": {
-    "wpmjs": "^4.0.6"
+    "wpmjs": "^4.0.6",
+    "npm-federation": "^1.0.6",
+    "single-react-refresh-plugin": "^1.0.5",
+    "webpack-port-collector": "^1.0.2"
   }
 }
