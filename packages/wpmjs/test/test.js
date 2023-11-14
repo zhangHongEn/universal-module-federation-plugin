@@ -46,7 +46,8 @@ wpmjs1.addImportMap({
   "mf-app-01": {
     package: "mf-app-01@1.0.5/dist/remoteEntry.js",
     global: "mfapp01"
-  }
+  },
+  "mf-app-01": "mfapp01@https://cdn.jsdelivr.net/npm/mf-app-01@1.0.5/dist/remoteEntry.js"
 })
 
 wpmjs.addImportMap({
@@ -67,6 +68,7 @@ wpmjs.addImportMap({
     package: "mf-app-01@1.0.8/dist/remoteEntry.js",
     global: "mfapp01"
   },
+  "mf-app-01": "mfapp01@https://cdn.jsdelivr.net/npm/mf-app-01@1.0.5/dist/remoteEntry.js",
   "mf-app-02": {
     package: "mf-app-02@1.0.5/dist/remoteEntry.js",
     global: "mfapp02"

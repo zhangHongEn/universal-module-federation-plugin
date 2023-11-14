@@ -85,7 +85,7 @@ function wimportWrapper(request) {
  * @returns 
  */
 async function wimport(request) {
-  const useConfig = getPkgConfig(parseRequest(request).name, this.config)
+  const useConfig = getPkgConfig(parseRequest(request).name, this.config) || this.config.requestFormatConfig.call(this, request)
   let requestObj = resolveRequest(request, this.config, useConfig)
 
   const {

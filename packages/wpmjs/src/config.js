@@ -33,6 +33,14 @@ const prototype = Config.prototype
  * @returns 
  */
 prototype.requestFormatConfig = function requestFormatConfig(obj = "") {
+  const [_, globalKey, url] = (typeof obj === "string" && obj.match(/([\w]+)\@(https?\:\/\/.*)/)) || []
+  if (url) {
+    return {
+      moduleType: "mf",
+      global: globalKey,
+      url,
+    }
+  }
   if (/https?:\/\//.test(obj)) {
     return {
       url: obj,
