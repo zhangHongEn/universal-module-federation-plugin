@@ -1,6 +1,6 @@
 {
   "name": "universal-module-federation-plugin",
-  "version": "2.0.1",
+  "version": "2.0.1-latest.1",
   "description": "open module federation hook, support custom behavior, such as umd specification integration",
   "main": "src/index.js",
   "keywords": [

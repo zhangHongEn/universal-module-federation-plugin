@@ -1,4 +1,5 @@
-
+const Port = require("webpack-port-collector")
+const NpmFederation = require("npm-federation")
 
 class WpmPlugin {
   constructor(options) {
@@ -19,7 +20,13 @@ class WpmPlugin {
     }, options)
   }
   apply(compiler) {
-
+    if (this.options.filename && this.options.name) {
+      new Port({
+        packageName: this.options.packageName,
+        filename: this.options.filename
+      }).apply(compiler)
+    }
+    new NpmFederation(this.options).apply(compiler)
   }
 }
 
