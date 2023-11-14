@@ -1,5 +1,7 @@
 # universal-module-federation-plugin
 
+This is currently version 2.0 documentation, [v1](https://www.npmjs.com/package/universal-module-federation-plugin/v/1.0.9?activeTab=readme) is here
+
 [![npm](https://img.shields.io/npm/v/universal-module-federation-plugin.svg)](https://www.npmjs.com/package/universal-module-federation-plugin)
 [中文文档](https://github.com/zhangHongEn/universal-module-federation-plugin/blob/main/packages/universal-module-federation-plugin/README-cn.md)
 

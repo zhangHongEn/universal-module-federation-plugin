@@ -1,5 +1,7 @@
 # universal-module-federation-plugin
 
+当前是2.0版本文档, [v1](https://www.npmjs.com/package/universal-module-federation-plugin/v/1.0.9?activeTab=readme)在这里
+
 [![npm](https://img.shields.io/npm/v/universal-module-federation-plugin.svg)](https://www.npmjs.com/package/universal-module-federation-plugin)
 
 保持模块联合的原始API，支持各种模块规范的集成
