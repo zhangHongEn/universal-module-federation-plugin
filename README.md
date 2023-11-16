@@ -1,6 +1,6 @@
 # universal-module-federation-plugin
 [中文文档](./README.cn.md)
-### [wpmjs（web package manager）](./packages/wpmjs)
+### [wpmjs（web package manager）](https://github.com/wpmjs)
 Versioned remote module manager based on npm and module-federation,   [View online demo](https://zhanghongen.github.io/universal-module-federation-plugin/)
 
 ![](./docs/debug-panel.png)
