@@ -13,6 +13,7 @@
 // todo: 每一个app的shared注册完成后, 
 // todo: shared优先级提高来做热更新
 // todo: !!! wpm插件用来等待mfRemotes
+// todo: 文档补充自定义加载行为
 const _global = require("global")
 const { default: Config } = require('./config');
 const { resolveUrl, resolveEntry, formatContainer, resolveContainer, registerLoader } = require('./moduleResolve');
@@ -36,6 +37,7 @@ function resolveRequest(request, config, pkgConfig) {
   }
   let requestObj = {
     name: pkgConfig.packageName || name,
+
     version: pkgConfig.packageVersion || version || config.defaultVersion(name),
     filename: pkgConfig.packageFilename || entry,
     entry,
@@ -94,7 +96,7 @@ async function wimport(request) {
     version,
     query,
   } = requestObj
-  const moduleType = useConfig?.moduleType || this.config.defaultModuleType()
+  const moduleType = useConfig?.moduleType || this.config.defaultModuleType(name)
   let container = null
   try {
     container = getShared({
@@ -154,7 +156,7 @@ function Wpmjs({name} = {}) {
   this.loaderMap = {
     // "moduleType": {moduleType, resolveUrl, resolveContainer, resolveEntry}
   }
-  require("./extras/system").default(this)
+  require("./extras/umdAndSystem").default(this)
   require("./extras/mf").default(this)
   require("./extras/json").default(this)
   require("./debugMode").default(this)

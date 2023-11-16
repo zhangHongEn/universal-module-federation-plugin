@@ -20,6 +20,12 @@ export default function (wpmjs) {
     resolveContainer,
     resolveEntry
   })
+  wpmjs.registerLoader({
+    moduleType: "umd",
+    resolveUrl,
+    resolveContainer,
+    resolveEntry
+  })
 
 
  function resolveUrl({name, version, query, entry, filename, baseUrl}) {

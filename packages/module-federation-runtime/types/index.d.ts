@@ -5,7 +5,7 @@ declare module "module-federation-runtime" {
     fromType?: string;
     from?: string;
     loaded?: boolean | number;
-    get: function(): ModuleFactory;
+    get: function(): Promise<ModuleFactory>;
     version: string;
     shareScope?: string;
   }
@@ -39,7 +39,7 @@ declare module "module-federation-runtime" {
   export function initSharing(shareScopeKey: string): Promise<1>;
   export function registerShared(shared: {
     [name: string]: {
-      get: function(): ModuleFactory;
+      get: function(): Promise<ModuleFactory>;
       version: string;
       loaded?: boolean;
       from?: string;
