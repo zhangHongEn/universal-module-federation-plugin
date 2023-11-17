@@ -2,22 +2,24 @@ const PLUGIN_NAME = "WPM_PLUGIN"
 const {UniversalModuleFederationPlugin} = require("universal-module-federation-plugin")
 const path = require("path")
 const VirtualModulesPlugin = require("webpack-virtual-modules")
+const Port = require("webpack-port-collector")
+const {ModuleFederationPlugin} = require("webpack").container
 let instanceIndex = 0
 class NpmFederationPlugin {
   constructor(options = {}) {
     const {
-      name,
       initial,
       config,
       debugQuery,
       remotes,
+      workerFiles,
       ...ops
     } = Object.assign({
-      name: "",
       initial: "",
       config: {},
       debugQuery: "",
-      remotes: {}
+      remotes: {},
+      workerFiles: undefined
     }, options)
     this.options = options
     this.mfOptions = ops
@@ -25,11 +27,28 @@ class NpmFederationPlugin {
     this.remotes = remotes
     this.config = config
     this.debugQuery = debugQuery
+    this.workerFiles = workerFiles
     this.instanceIndex = ++instanceIndex
   }
   
   apply(compiler) {
-    const name = this.name || (compiler.options.output || {}).uniqueName || function(){
+    const mfOptions = this.mfOptions
+    if (mfOptions.filename && mfOptions.name) {
+      new Port({
+        packageName: mfOptions.name,
+        filename: mfOptions.filename
+      }).apply(compiler)
+      new ModuleFederationPlugin({
+        ...mfOptions,
+        remotes: {},
+      }).apply(compiler)
+    } else if (mfOptions.shared || mfOptions.exposes) {
+      new ModuleFederationPlugin({
+        ...this.mfOptions,
+        remotes: {},
+      }).apply(compiler)
+    }
+    const name = this.mfOptions.name || (compiler.options.output || {}).uniqueName || function(){
       try {
         return require(path.resolve(process.cwd(),'package.json')).name
       } catch(e) {
@@ -69,7 +88,8 @@ class NpmFederationPlugin {
       remotes[remoteKey] = `promise new Promise(resolve => {
         const wpmjs = require("./virtual_npmfederation_wpmjs${this.instanceIndex}")
         if (wpmjs.config.importMap["${remoteKey}"].moduleType === "mf") {
-          return wpmjs.import("${remoteKey}")
+          resolve(wpmjs.import("${remoteKey}"))
+          return
         }
         
         resolve({
@@ -85,9 +105,10 @@ class NpmFederationPlugin {
         })
       })`
     })
+    
     new UniversalModuleFederationPlugin({
-      ...this.mfOptions,
       remotes,
+      workerFiles: this.workerFiles
     }).apply(compiler)
   }
 

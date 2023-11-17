@@ -16,14 +16,15 @@
   },
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "wpmjs": "^4.0.18-doc.1"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
     "@babel/preset-react": "^7.13.13",
     "babel-loader": "^8.2.2",
     "html-webpack-plugin": "^5.3.1",
-    "npm-federation": "^1.0.6",
+    "npm-federation": "^1.0.9",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^4.0.0",

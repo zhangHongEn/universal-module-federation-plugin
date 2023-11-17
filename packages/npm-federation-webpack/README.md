@@ -2,10 +2,7 @@
 
 ## api
 
-``` js
-const NPMFederation = require("npm-federation")
-new NPMFederation({
-  // Inject some code through initial (not required)
+<!-- // Inject some code through initial (not required)
   initial: `
     console.log("Inject code wpmjsInstance", wpmjs)
     wpmjs.sleep(new Promise(resolve => {
@@ -21,16 +18,17 @@ new NPMFederation({
         resolve()
       }, 100)
     }))
-  `,
-  config: {
-    baseUrl: "https://cdn.jsdelivr.net/npm"
-  },
+  `, -->
+``` js
+const NPMFederation = require("npm-federation")
+new NPMFederation({
   remotes: {
-    "@remix-run/router": "@remix-run/router@1.0.3/dist/router.umd.min.js",
+    "@remix-run/router": "https://cdn.jsdelivr.net/npm/@remix-run/router@1.0.3/dist/router.umd.min.js",
+    "mf-app-02": "mfapp02@https://cdn.jsdelivr.net/npm/mf-app-02@latest/dist/remoteEntry.js",
   }
 })
 ```
 
-## 自定义url规则
+<!-- ## 自定义url规则
 
-## systemjs多入口规范
+## systemjs多入口规范 -->

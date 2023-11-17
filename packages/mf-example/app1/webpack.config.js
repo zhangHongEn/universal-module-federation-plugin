@@ -34,20 +34,6 @@ module.exports = {
   },
   plugins: [
     // To learn more about the usage of this plugin, please visit https://webpack.js.org/plugins/module-federation-plugin/
-    new ModuleFederationPlugin({
-      name: 'mfapp01',
-      filename: 'remoteEntry.js',
-      exposes: {
-        './App': './src/App.js',
-      },
-      // remotes: {
-      //   "mfapp01": "mfapp01@https://cdn.jsdelivr.net/npm/mf-app-01/dist/remoteEntry.js"
-      // },
-      shared: { react: { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" }, 'react-dom': { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" } },
-    }),
-    new Port({
-      filename: "remoteEntry.js"
-    }),
     new NpmFederation({
       // Inject some code through initial (not required)
       initial: `
@@ -71,8 +57,18 @@ module.exports = {
       },
       remotes: {
         "@remix-run/router": "@remix-run/router/dist/router.umd.min.js",
-        "react-router": "react-router@latest/dist/umd/react-router.development.js"
-      }
+        "react-router": "react-router@latest/dist/umd/react-router.development.js",
+        "mf-app-02": "mfapp02@https://cdn.jsdelivr.net/npm/mf-app-02/dist/remoteEntry.js"
+      },
+      name: 'mfapp01',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './App': './src/App.js',
+      },
+      // remotes: {
+      //   "mfapp01": "mfapp01@https://cdn.jsdelivr.net/npm/mf-app-01/dist/remoteEntry.js"
+      // },
+      shared: { react: { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" }, 'react-dom': { singleton: false, version: "18.1.0", requiredVersion: "18.1.0" } },
     }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
