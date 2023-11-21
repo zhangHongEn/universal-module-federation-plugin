@@ -1,6 +1,6 @@
 {
   "name": "systemjs-intercept",
-  "version": "1.0.14",
+  "version": "1.0.14-doc.1",
   "description": "used to invade Systemjs and customize the behavior of obtaining dependencies",
   "main": "src/index.js",
   "scripts": {
@@ -11,11 +11,10 @@
   "dependencies": {
     "systemjs": "^6.14.2"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wpmjs/wpmjs/tree/main/packages/wpmjs"
+  "bugs": {
+    "url": "https://github.com/zhangHongEn/universal-module-federation-plugin/issues"
   },
-  "homepage": "https://github.com/wpmjs/wpmjs/tree/main/packages/wpmjs",
+  "homepage": "https://github.com/zhangHongEn/universal-module-federation-plugin/tree/main/packages/systemjs-intercept",
   "files": ["src"],
   "keywords": ["systemjs"]
 }
