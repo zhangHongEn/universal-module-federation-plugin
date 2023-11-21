@@ -26,6 +26,6 @@ require("systemjs-intercept")(function (dep) {
     //   test: "react"
     // }
   }
-}, )
+}, newSystem)
 console.log(111, newSystem.import("https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"))
 ```
