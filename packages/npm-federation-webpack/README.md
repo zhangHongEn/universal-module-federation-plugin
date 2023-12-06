@@ -25,7 +25,8 @@ new NPMFederation({
   remotes: {
     "@remix-run/router": "https://cdn.jsdelivr.net/npm/@remix-run/router@1.0.3/dist/router.umd.min.js",
     "mf-app-02": "mfapp02@https://cdn.jsdelivr.net/npm/mf-app-02@latest/dist/remoteEntry.js",
-  }
+  },
+  shared: {react: {}}
 })
 ```
 
