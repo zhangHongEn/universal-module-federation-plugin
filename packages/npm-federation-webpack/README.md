@@ -30,6 +30,21 @@ new NPMFederation({
 })
 ```
 
+``` js
+const NPMFederation = require("npm-federation")
+new NPMFederation({
+  baseUrl: "https://cdn.jsdelivr.net/npm",
+  remotes: {
+    "@remix-run/router": "@remix-run/router@1.0.3/dist/router.umd.min.js",
+    "mf-app-02": {
+      package: "mf-app-02@latest/dist/remoteEntry.js",
+      global: "mfapp02"
+    },
+  },
+  shared: {react: {}}
+})
+```
+
 <!-- ## 自定义url规则
 
 ## systemjs多入口规范 -->
