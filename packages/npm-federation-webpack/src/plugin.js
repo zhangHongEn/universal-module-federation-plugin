@@ -9,23 +9,23 @@ class NpmFederationPlugin {
   constructor(options = {}) {
     const {
       initial,
-      config,
       debugQuery,
       remotes,
       workerFiles,
+      baseUrl,
       ...ops
     } = Object.assign({
       initial: "",
-      config: {},
+      baseUrl: "",
       debugQuery: "",
       remotes: {},
       workerFiles: undefined
     }, options)
     this.options = options
     this.mfOptions = ops
+    this.baseUrl = baseUrl
     this.initial = initial
     this.remotes = remotes
-    this.config = config
     this.debugQuery = debugQuery
     this.workerFiles = workerFiles
     this.instanceIndex = ++instanceIndex
@@ -62,7 +62,11 @@ class NpmFederationPlugin {
         name: ${JSON.stringify(name)}
       })
       ${this.initial}
-      wpmjs.setConfig(${JSON.stringify(this.config || {})})
+      ${(function(plugin) {
+        if (plugin.baseUrl) {
+          return `;wpmjs.setConfig({baseUrl: ${JSON.stringify(plugin.baseUrl)}});`
+        }
+      })(this)}
       wpmjs.addImportMap(${JSON.stringify(this.remotes)})
       const __mfList = []
       const __preloadSystemList = []
