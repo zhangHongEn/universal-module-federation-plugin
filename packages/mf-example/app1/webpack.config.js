@@ -35,7 +35,6 @@ module.exports = {
   plugins: [
     // To learn more about the usage of this plugin, please visit https://webpack.js.org/plugins/module-federation-plugin/
     new NpmFederation({
-      // Inject some code through initial (not required)
       initial: `
         console.log("Inject code wpmjsInstance", wpmjs)
         wpmjs.sleep(new Promise(resolve => {
@@ -43,6 +42,9 @@ module.exports = {
           const json = {
             "@remix-run/router": {
               packageVersion: "1.9.0"
+            },
+            "mf-app-02": {
+              packageVersion: "1.0.6"
             }
           }
           setTimeout(() => {
@@ -50,15 +52,14 @@ module.exports = {
             wpmjs.addImportMap(json)
             resolve()
           }, 100)
-        }))
-      `,
-      config: {
-        baseUrl: "https://cdn.jsdelivr.net/npm"
-      },
+        }))`,
+      baseUrl: "https://cdn.jsdelivr.net/npm",
       remotes: {
         "@remix-run/router": "@remix-run/router/dist/router.umd.min.js",
-        "react-router": "react-router@latest/dist/umd/react-router.development.js",
-        "mf-app-02": "mfapp02@https://cdn.jsdelivr.net/npm/mf-app-02/dist/remoteEntry.js"
+        "mf-app-02": {
+          package: "mf-app-02/dist/remoteEntry.js",
+          global: "mfapp02"
+        },
       },
       name: 'mfapp01',
       filename: 'remoteEntry.js',
