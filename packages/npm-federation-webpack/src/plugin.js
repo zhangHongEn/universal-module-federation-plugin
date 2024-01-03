@@ -61,13 +61,13 @@ class NpmFederationPlugin {
       let wpmjs = new globalThis.wpmjs.constructor({
         name: ${JSON.stringify(name)}
       })
-      ${this.initial}
       ${(function(plugin) {
         if (plugin.baseUrl) {
           return `;wpmjs.setConfig({baseUrl: ${JSON.stringify(plugin.baseUrl)}});`
         }
       })(this)}
       wpmjs.addImportMap(${JSON.stringify(this.remotes)})
+      ${this.initial}
       const __mfList = []
       const __preloadSystemList = []
       Object.keys(wpmjs.config.importMap).forEach(key => {
