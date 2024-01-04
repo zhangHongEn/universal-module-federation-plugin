@@ -34,7 +34,7 @@
 
 ## UmdPlugin示例
 
-允许模块联合使用umd模
+推荐使用[npm-federation](../npm-federation-webpack), 允许模块联合使用umd模
 
 ``` js
 // webpack.config.js
