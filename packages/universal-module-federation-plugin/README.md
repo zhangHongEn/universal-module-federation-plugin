@@ -34,7 +34,7 @@ Allows you to control all the processes of each dependency by yourself
     * [UniversalModuleFederationPlugin examles](#UniversalModuleFederationPlugin-examles)
 
 ## UmdPlugin examles
-[recommend using npm federation](../npm-federation-webpack),Allow module-federation to use umd module, umd dependencies can be obtained from shareScopes or remotes
+recommend using [npm-federation](../npm-federation-webpack),Allow module-federation to use umd module, umd dependencies can be obtained from shareScopes or remotes
 
 ``` js
 // webpack.config.js
