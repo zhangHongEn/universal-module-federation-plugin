@@ -22,9 +22,12 @@
   "devDependencies": {
     "@babel/core": "^7.14.3",
     "@babel/preset-react": "^7.13.13",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
     "babel-loader": "^8.2.2",
     "html-webpack-plugin": "^5.3.1",
     "npm-federation": "^1.0.12",
+    "react-refresh": "^0.14.0",
+    "single-react-refresh-plugin": "^1.0.5",
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^4.0.0",

@@ -37,6 +37,7 @@
     "react": {
       "packageVersion": "18.2.0"
     },
+    "react-refresh": "react-refresh-umd/dist/index.js"
   })
   wpmjs.addImportMap({
     "react-dom": "react-dom/umd/react-dom.development.js",
@@ -47,19 +48,10 @@
     }
   })
   
-  // 卡住两次wpmjs的加载
-  // window.wpmjs.sleep(new Promise(resolve => {
-  //   setTimeout(() => {
-  //     resolve()
-  //     window.wpmjs.sleep(new Promise(resolve => {
-  //       setTimeout(() => {
-  //         resolve()
-  //       }, 1000)
-  //     }))
-  //   }, 1000);
-  // }))
-  
   ;(async function main() {
+    const [refresh] = await Promise.all(["react-refresh"].map(pkg => wpmjs.import(pkg)));
+    window.__singleReactRefreshRuntime__ = refresh
+    refresh.injectIntoGlobalHook(window)
     const [React, reactDom] = await Promise.all(["react", "react-dom"].map(pkg => wpmjs.import(pkg)));
     const [
       dayjs
