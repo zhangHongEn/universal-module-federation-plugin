@@ -56,6 +56,7 @@ declare module "module-federation-runtime" {
   export function registerRemotes(remotes?: {
     [global: string]: {
       url: string;
+      global?: string;
       shareScope?: string;
     };
   }, customLoadScript?: function():Promise<any>, shareScopes?: ShareScopes): Promise;

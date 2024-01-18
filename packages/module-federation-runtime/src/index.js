@@ -68,10 +68,11 @@ export function registerRemotes(registerRemotes = {}, customLoadScript, shareSco
   shareScopes = shareScopes || _shareScopes
   const useLoadScript = customLoadScript || loadScript
   const containersIniting = Object.keys(registerRemotes)
-    .map(global => {
+    .map(key => {
+      const global = registerRemotes[key].global || key
       var container = _global[global]
-      var url = registerRemotes[global].url
-      var shareScope = registerRemotes[global].shareScope || "default"
+      var url = registerRemotes[key].url
+      var shareScope = registerRemotes[key].shareScope || "default"
       initShared(shareScope, shareScopes)
       if (container) {
         // 已有remote, 复用
