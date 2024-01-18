@@ -34,8 +34,7 @@ Allows you to control all the processes of each dependency by yourself
     * [UniversalModuleFederationPlugin examles](#UniversalModuleFederationPlugin-examles)
 
 ## UmdPlugin examles
-
-Allow module-federation to use umd module, umd dependencies can be obtained from shareScopes or remotes
+recommend using [npm-federation](../npm-federation-webpack),Allow module-federation to use umd module, umd dependencies can be obtained from shareScopes or remotes
 
 ``` js
 // webpack.config.js
@@ -73,7 +72,7 @@ module.exports = {
 
 | options     | desc                 | interface                       | default | examles            |
 |-------------|----------------------|:--------------------------------|---------|:-------------------|
-| remotes     | umd remotes          | { remoteKey: "{global}@{url}" } | {}      | string>            |
+| remotes     | umd remotes          | { remoteKey: "url" } | {}      | string>            |
 | workerFiles | web worker file path |                                 | []      | [/\.?worker\.js$/] |
 
 ## delegate modules
