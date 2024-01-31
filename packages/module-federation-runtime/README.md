@@ -63,14 +63,13 @@ import { remotes, shareScopes, initSharing, registerShared, findShared, register
       }
     }
   })
-  const AppFactory = await findModule("mfapp01", "./App")
+  const App = await findModule("mfapp01", "./App")
   const shareReactDom = findShared({
     name: "react-dom",
     requiredVersion: "18"
   })
   console.log("remotes", remotes)
   console.log("findRemote", findRemote("mfapp01"))
-  const App = AppFactory()
   console.log("App", App)
   console.log("shareScopes", shareScopes)
   console.log("shareReactDom from:", shareReactDom.from)
@@ -136,7 +135,8 @@ findRemote(global: string): Promise<ModuleFederationContainer>;
 ### findModule
 
 ```js
-findModule(global: string, path: string): Promise<ModuleFactory>
+findModule(global: string, path: string): Promise<Module>
+```
 
 ### remotes
 
