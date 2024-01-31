@@ -63,14 +63,14 @@ import { remotes, shareScopes, initSharing, registerShared, findShared, register
       }
     }
   })
-  const App = await findModule("mfapp01", "./App")
+  const remoteModule = await findModule("mfapp01", "./App")
   const shareReactDom = findShared({
     name: "react-dom",
     requiredVersion: "18"
   })
   console.log("remotes", remotes)
   console.log("findRemote", findRemote("mfapp01"))
-  console.log("App", App)
+  console.log("remoteModule", remoteModule)
   console.log("shareScopes", shareScopes)
   console.log("shareReactDom from:", shareReactDom.from)
   console.log("shareReactDom value:", (await shareReactDom.get())())
