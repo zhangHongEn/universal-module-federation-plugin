@@ -4,6 +4,10 @@
   "description": "mock and expose module federation runtime API",
   "main": "dist/index.js",
   "module": "dist/index.js",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/node/index.js"
+  },
   "files": [
     "dist",
     "types",
