@@ -2,12 +2,8 @@
   "name": "module-federation-runtime",
   "version": "1.2.5",
   "description": "mock and expose module federation runtime API",
-  "main": "dist/index.js",
+  "main": "dist/umd/index.js",
   "module": "dist/index.js",
-  "exports": {
-    "import": "./dist/index.js",
-    "require": "./dist/umd/index.js"
-  },
   "files": [
     "dist",
     "types",
