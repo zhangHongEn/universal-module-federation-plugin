@@ -8,18 +8,11 @@
     "app2/dist"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "lerna run --parallel start",
-    "build": "lerna run --parallel build"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "workspaces": [
-    "app1",
-    "app2"
-  ],
   "devDependencies": {
-    "lerna": "^4.0.0"
   }
 }
